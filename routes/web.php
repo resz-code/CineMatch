@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -25,3 +25,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::get('/home', function () {
+    return Inertia::render('User/Home');
+})->middleware(['auth', 'verified'])->name('home');
+
