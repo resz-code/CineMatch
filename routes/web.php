@@ -30,3 +30,7 @@ Route::get('/home', function () {
     return Inertia::render('User/Home');
 })->middleware(['auth', 'verified'])->name('home');
 
+
+Route::get('/riwayat', function () {
+    return Inertia::render('User/Riwayat');
+})->middleware(['auth', 'verified'])->name('riwayat');
