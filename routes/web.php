@@ -34,3 +34,6 @@ Route::get('/home', function () {
 Route::get('/riwayat', function () {
     return Inertia::render('User/Riwayat');
 })->middleware(['auth', 'verified'])->name('riwayat');
+Route::get('/jelajahi', function () {
+    return Inertia::render('User/Jelajahi');
+})->middleware(['auth', 'verified'])->name('jelajahi');
