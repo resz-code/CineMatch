@@ -34,6 +34,30 @@ Route::get('/home', function () {
 Route::get('/profil', function () {
     return Inertia::render('User/Profil');
 })->middleware(['auth', 'verified'])->name('profil');
+
+Route::get('/jelajahi', function () {
+    return Inertia::render('User/Jelajahi');
+})->middleware(['auth', 'verified'])->name('jelajahi');
+
+Route::get('/riwayat', function () {
+    return Inertia::render('User/Riwayat');
+})->middleware(['auth', 'verified'])->name('riwayat');
+
+Route::get('/profil', function () {
+    return Inertia::render('User/Profil');
+})->middleware(['auth', 'verified'])->name('profil');
+
+Route::get('/dashboard-user', function () {
+    return Inertia::render('User/Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard.user');
+
+Route::get('/home', function () {
+    return Inertia::render('User/Home');
+})->middleware(['auth', 'verified'])->name('home');
+
+Route::get('/dashboard-user', function () {
+    return Inertia::render('User/Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard.user');
 Route::get('/riwayat', function () {
     return Inertia::render('User/Riwayat');
 })->middleware(['auth', 'verified'])->name('riwayat');

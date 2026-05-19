@@ -51,14 +51,14 @@ export default function AuthenticatedLayout({ header, children }) {
                             {dropdownOpen && (
                                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                                     <Link
-                                        href="/profile"
+                                        href="/profil"
                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                                         onClick={() => setDropdownOpen(false)}
                                     >
                                         Profil saya
                                     </Link>
                                     <Link
-                                        href="/dashboard"
+                                        href="/dashboard-user"
                                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                                         onClick={() => setDropdownOpen(false)}
                                     >
