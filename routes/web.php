@@ -30,3 +30,7 @@ Route::get('/home', function () {
     return Inertia::render('User/Home');
 })->middleware(['auth', 'verified'])->name('home');
 
+
+Route::get('/profil', function () {
+    return Inertia::render('User/Profil');
+})->middleware(['auth', 'verified'])->name('profil');
