@@ -64,3 +64,23 @@ Route::get('/riwayat', function () {
 Route::get('/jelajahi', function () {
     return Inertia::render('User/Jelajahi');
 })->middleware(['auth', 'verified'])->name('jelajahi');
+
+Route::get('/admin', function () {
+    return Inertia::render('Admin/Dashboard');
+})->middleware(['auth', 'verified'])->name('admin.dashboard');
+
+Route::get('/admin/film', function () {
+    return Inertia::render('Admin/Film');
+})->middleware(['auth', 'verified'])->name('admin.film');
+
+Route::get('/admin/users', function () {
+    return Inertia::render('Admin/Users');
+})->middleware(['auth', 'verified'])->name('admin.users');
+
+Route::get('/admin/model', function () {
+    return Inertia::render('Admin/Model');
+})->middleware(['auth', 'verified'])->name('admin.model');
+
+Route::get('/admin/laporan', function () {
+    return Inertia::render('Admin/Laporan');
+})->middleware(['auth', 'verified'])->name('admin.laporan');
