@@ -13,10 +13,18 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+
+            // Data user
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Genre favorit user
+            // simpan dalam bentuk JSON array
+            $table->json('favorite_genres')->nullable();
+
+
             $table->rememberToken();
             $table->timestamps();
         });
