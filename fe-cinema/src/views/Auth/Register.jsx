@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from '../../api/axios'; // Sesuaikan path-nya
 
 export default function Register() {
     const navigate = useNavigate();
@@ -31,12 +32,36 @@ export default function Register() {
 
     const submit = async (e) => {
         e.preventDefault();
+        
+        // 1. Validasi manual frontend untuk genre
+        if (data.genres.length < 3) {
+            setErrors({ genres: ['Pilih minimal 3 genre favorit.'] });
+            return;
+        }
+
         setProcessing(true);
+        setErrors({});
         
-        // TODO: Integrasi Axios ke API Register Laravel
-        console.log("Data Register:", data);
-        
-        setTimeout(() => setProcessing(false), 1000);
+        try {
+            // 2. Tembak API Register Laravel
+            const response = await axios.post('/register', data);
+            
+            // 3. Simpan Token
+            localStorage.setItem('token', response.data.access_token);
+            localStorage.setItem('role', response.data.user.role);
+            
+            // 4. Redirect ke halaman utama User
+            navigate('/home');
+
+        } catch (error) {
+            if (error.response && error.response.status === 422) {
+                setErrors(error.response.data.errors);
+            } else {
+                setErrors({ email: ["Terjadi kesalahan saat mendaftar. Coba lagi nanti."] });
+            }
+        } finally {
+            setProcessing(false);
+        }
     };
 
     return (
@@ -76,7 +101,7 @@ export default function Register() {
                                         placeholder="Nama kamu"
                                         required
                                     />
-                                    {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
+                                    {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name[0]}</p>}
                                 </div>
 
                                 {/* Input Email */}
@@ -90,7 +115,7 @@ export default function Register() {
                                         placeholder="nama@email.com"
                                         required
                                     />
-                                    {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                                    {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email[0]}</p>}
                                 </div>
 
                                 {/* Input Password */}
@@ -113,6 +138,7 @@ export default function Register() {
                                             {showPassword ? 'Tutup' : 'Lihat'}
                                         </button>
                                     </div>
+                                    {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password[0]}</p>}
                                 </div>
 
                                 {/* Input Konfirmasi Password */}
@@ -172,6 +198,7 @@ export default function Register() {
                                     </button>
                                 ))}
                             </div>
+                            {errors.genres && <p className="text-red-400 text-xs mb-4">{errors.genres[0] || errors.genres}</p>}
                         </div>
 
                         <div>

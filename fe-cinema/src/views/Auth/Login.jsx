@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from '../../api/axios'; 
 
 export default function Login() {
     const navigate = useNavigate();
     
-    // Mengganti useForm dari Inertia dengan useState standar React
     const [data, setData] = useState({
         email: '',
         password: '',
@@ -19,20 +19,47 @@ export default function Login() {
     const submit = async (e) => {
         e.preventDefault();
         setProcessing(true);
+        setErrors({}); // Reset error setiap kali submit baru
+        setStatus(null);
         
-        // TODO: Nanti di sini kita tambahkan Axios untuk tembak API Laravel
-        console.log("Data Login:", data);
-        
-        // Simulasi loading
-        setTimeout(() => setProcessing(false), 1000);
+        try {
+            // Tembak API Login Laravel
+            const response = await axios.post('/login', {
+                email: data.email,
+                password: data.password
+            });
+            
+            // 1. Simpan Token dan Role ke Local Storage
+            localStorage.setItem('token', response.data.access_token);
+            localStorage.setItem('role', response.data.user.role);
+            
+            setStatus("Login berhasil! Mengalihkan...");
+
+            // 2. Redirect berdasarkan Role
+            setTimeout(() => {
+                if (response.data.user.role === 'admin') {
+                    navigate('/admin/dashboard');
+                } else {
+                    navigate('/home');
+                }
+            }, 500);
+
+        } catch (error) {
+            // Tangkap pesan error validasi dari Laravel (Status 422)
+            if (error.response && error.response.status === 422) {
+                setErrors(error.response.data.errors);
+            } else {
+                setErrors({ email: ["Koneksi ke server gagal atau terjadi kesalahan."] });
+            }
+        } finally {
+            setProcessing(false);
+        }
     };
 
     return (
-        /* Pembungkus utama pengganti GuestLayout */
         <div className="min-h-screen bg-[#141414] flex flex-col justify-center items-center p-4 font-sans">
             <div className="w-full max-w-md">
                 
-                {/* Bagian Judul */}
                 <div className="text-center mb-6">
                     <h1 className="text-3xl font-medium text-white">
                         Cine<span className="text-purple-500">Match</span>
@@ -40,10 +67,8 @@ export default function Login() {
                     <p className="text-gray-400 text-sm mt-1">Sistem rekomendasi film personal</p>
                 </div>
 
-                {/* Kotak Form */}
                 <div className="bg-[#222222] rounded-xl border border-zinc-800 p-6 shadow-xl">
 
-                    {/* Toggle Tombol Masuk / Daftar */}
                     <div className="flex border border-zinc-700 rounded-lg overflow-hidden mb-5">
                         <button type="button" className="flex-1 py-2 text-sm font-medium bg-purple-600 text-white cursor-default">
                             Masuk
@@ -71,7 +96,8 @@ export default function Login() {
                                 placeholder="nama@email.com"
                                 required
                             />
-                            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                            {/* Menampilkan pesan error dari Laravel (biasanya array) */}
+                            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email[0]}</p>}
                         </div>
 
                         {/* Input Password */}
@@ -86,8 +112,6 @@ export default function Login() {
                                     placeholder="••••••••"
                                     required
                                 />
-                                
-                                {/* Tombol Mata */}
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
@@ -105,10 +129,9 @@ export default function Login() {
                                     )}
                                 </button>
                             </div>
-                            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password[0]}</p>}
                         </div>
 
-                        {/* Checkbox & Lupa Password */}
                         <div className="flex items-center justify-between mb-5">
                             <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none">
                                 <input
