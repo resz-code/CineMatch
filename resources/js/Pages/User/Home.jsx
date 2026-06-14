@@ -2,7 +2,7 @@
 import { Head, Link } from '@inertiajs/react';
 
 export default function Home({ auth }) {
-    const genres = ['Semua','Aksi','Drama','Sci-Fi','Komedi','Horor','Animasi'];
+    const genres = ['Semua', 'Aksi', 'Drama', 'Sci-Fi', 'Komedi', 'Horor', 'Animasi'];
 
     const dummyFilms = [
         { id: 1, judul: 'Interstellar', genre: 'Sci-Fi', rating: 4.8, match: 95 },
@@ -16,83 +16,82 @@ export default function Home({ auth }) {
     ];
 
     return (
-        <AuthenticatedLayout user={auth.user}>
+        <AuthenticatedLayout>
             <Head title="Beranda — CineMatch" />
 
-            <div className="min-h-screen bg-gray-50">
+            {/* Hero section - Menggunakan border zinc bawah untuk pembatas bersih */}
+            <div className="border-b border-zinc-800/60 px-6 py-10 text-center">
+                {/* Menyapa user dengan aksen warna ungu */}
+                <h2 className="text-2xl font-medium text-white mb-2">
+                    Halo, <span className="text-purple-500">{auth.user.name}</span>! 👋
+                </h2>
+                <p className="text-zinc-400 text-sm mb-5">
+                    Temukan film yang pas untukmu hari ini
+                </p>
+                <form className="flex gap-2 max-w-lg mx-auto">
+                    <input
+                        type="text"
+                        placeholder="Cari judul film, genre, aktor..."
+                        className="flex-1 bg-[#1a1a1a] border border-zinc-800 rounded-lg px-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 transition"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition shadow-sm shadow-purple-600/20 active:scale-95"
+                    >
+                        Cari
+                    </button>
+                </form>
+            </div>
 
-                {/* Hero section */}
-                <div className="bg-white border-b border-gray-200 px-6 py-10 text-center">
-                    <h2 className="text-2xl font-medium mb-2">
-                        Halo, {auth.user.name}! 👋
-                    </h2>
-                    <p className="text-gray-500 text-sm mb-5">
-                        Temukan film yang pas untukmu hari ini
-                    </p>
-                    <form className="flex gap-2 max-w-lg mx-auto">
-                        <input
-                            type="text"
-                            placeholder="Cari judul film, genre, aktor..."
-                            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        />
+            {/* Container Konten Utama */}
+            <div className="max-w-6xl mx-auto px-6 py-8">
+
+                {/* Filter genre kapsul */}
+                <div className="flex gap-2 flex-wrap mb-8">
+                    {genres.map((genre) => (
                         <button
-                            type="submit"
-                            className="bg-purple-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition"
+                            key={genre}
+                            className={`px-4 py-1.5 rounded-full border text-xs font-medium transition ${
+                                genre === 'Semua'
+                                    ? 'bg-purple-600 border-purple-500 text-white shadow-sm shadow-purple-500/10'
+                                    : 'bg-[#222222] border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white'
+                            }`}
                         >
-                            Cari
+                            {genre}
                         </button>
-                    </form>
+                    ))}
                 </div>
 
-                <div className="max-w-6xl mx-auto px-6 py-8">
-
-                    {/* Filter genre */}
-                    <div className="flex gap-2 flex-wrap mb-8">
-                        {genres.map((genre) => (
-                            <button
-                                key={genre}
-                                className={`px-4 py-1.5 rounded-full border text-sm transition ${
-                                    genre === 'Semua'
-                                        ? 'bg-purple-100 border-purple-300 text-purple-800'
-                                        : 'bg-white border-gray-200 text-gray-500 hover:border-purple-300'
-                                }`}
-                            >
-                                {genre}
-                            </button>
+                {/* Bagian: Rekomendasi untuk kamu */}
+                <div className="mb-10">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-sm font-medium text-white tracking-wide">Rekomendasi untukmu</h3>
+                        <Link href="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
+                            Lihat semua →
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {dummyFilms.slice(0, 4).map((film) => (
+                            <FilmCard key={film.id} film={film} />
                         ))}
                     </div>
-
-                    {/* Rekomendasi untuk kamu */}
-                    <div className="mb-10">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-medium text-gray-900">Rekomendasi untukmu</h3>
-                            <Link href="/jelajahi" className="text-sm text-purple-600 hover:underline">
-                                Lihat semua →
-                            </Link>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            {dummyFilms.slice(0, 4).map((film) => (
-                                <FilmCard key={film.id} film={film} />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Sedang populer */}
-                    <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-medium text-gray-900">Sedang populer</h3>
-                            <Link href="/jelajahi" className="text-sm text-purple-600 hover:underline">
-                                Lihat semua →
-                            </Link>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            {dummyFilms.slice(4, 8).map((film) => (
-                                <FilmCard key={film.id} film={film} />
-                            ))}
-                        </div>
-                    </div>
-
                 </div>
+
+                {/* Bagian: Sedang populer */}
+                <div>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-sm font-medium text-white tracking-wide">Sedang populer</h3>
+                        <Link href="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
+                            Lihat semua →
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {dummyFilms.slice(4, 8).map((film) => (
+                            <FilmCard key={film.id} film={film} />
+                        ))}
+                    </div>
+                </div>
+
             </div>
         </AuthenticatedLayout>
     );
@@ -100,21 +99,23 @@ export default function Home({ auth }) {
 
 function FilmCard({ film }) {
     return (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition cursor-pointer">
+        <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition cursor-pointer p-3 flex flex-col justify-between shadow-lg group">
             {/* Poster placeholder */}
-            <div className="h-36 bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
-                <span className="text-purple-400 text-xs">Poster</span>
+            <div className="aspect-[3/4] bg-[#262626] rounded-lg flex items-center justify-center mb-3 text-zinc-600 text-xs font-medium tracking-wider select-none transition group-hover:text-zinc-500">
+                Poster film
             </div>
-            {/* Info */}
-            <div className="p-3">
-                <p className="text-sm font-medium truncate mb-1">{film.judul}</p>
-                <p className="text-xs text-gray-500 mb-2">{film.genre}</p>
-                <div className="flex items-center gap-1 text-xs">
-                    <span className="text-yellow-500">★</span>
-                    <span>{film.rating}</span>
+            {/* Info detail film */}
+            <div>
+                <p className="text-sm font-medium text-white truncate mb-0.5 group-hover:text-purple-400 transition">{film.judul}</p>
+                <p className="text-[11px] text-zinc-500 mb-2">{film.genre}</p>
+                <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-0.5 text-xs">
+                        <span className="text-amber-500">★</span>
+                        <span className="text-zinc-300 font-medium">{film.rating}</span>
+                    </div>
                     {film.match && (
-                        <span className="ml-auto bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
-                            {film.match}% cocok
+                        <span className="text-[10px] font-semibold bg-purple-950/50 text-white px-2.5 py-0.5 rounded-full border border-purple-900/50 tracking-wide">
+                            {film.match}% Match
                         </span>
                     )}
                 </div>
