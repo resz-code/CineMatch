@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Home() {
-    // Simulasi data user (Nantinya data ini diambil dari API atau state management)
-    const [user] = useState({ name: 'Pengguna' });
+    // Simulasi data user
+    const [user] = useState({ name: 'Tester' });
 
     const genres = ['Semua', 'Aksi', 'Drama', 'Sci-Fi', 'Komedi', 'Horor', 'Animasi'];
 
@@ -20,12 +20,15 @@ export default function Home() {
 
     const [activeGenre, setActiveGenre] = useState('Semua');
 
+    // LAKUKAN FILTERING DI SINI
+    // Jika genre "Semua", tampilkan semua. Jika tidak, cocokkan dengan genre film.
+    const filteredFilms = dummyFilms.filter((film) => 
+        activeGenre === 'Semua' ? true : film.genre === activeGenre
+    );
+
     return (
-        /* Pembungkus utama pengganti AuthenticatedLayout */
         <div className="min-h-screen bg-[#141414] font-sans">
             
-            {/* TODO: Navbar Component bisa diletakkan di sini */}
-
             {/* Hero section */}
             <div className="border-b border-zinc-800/60 px-6 py-10 text-center">
                 <h2 className="text-2xl font-medium text-white mb-2">
@@ -80,11 +83,20 @@ export default function Home() {
                             Lihat semua →
                         </Link>
                     </div>
+                    
+                    {/* Ganti dummyFilms menjadi filteredFilms */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {dummyFilms.slice(0, 4).map((film) => (
+                        {filteredFilms.slice(0, 4).map((film) => (
                             <FilmCard key={film.id} film={film} />
                         ))}
                     </div>
+
+                    {/* Pesan kosong jika filter tidak menghasilkan data di baris pertama */}
+                    {filteredFilms.slice(0, 4).length === 0 && (
+                        <div className="text-center py-10 text-zinc-500 text-sm border border-dashed border-zinc-800 rounded-xl">
+                            Belum ada rekomendasi untuk genre {activeGenre}
+                        </div>
+                    )}
                 </div>
 
                 {/* Bagian: Sedang populer */}
@@ -95,11 +107,20 @@ export default function Home() {
                             Lihat semua →
                         </Link>
                     </div>
+                    
+                    {/* Ganti dummyFilms menjadi filteredFilms */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {dummyFilms.slice(4, 8).map((film) => (
+                        {filteredFilms.slice(4, 8).map((film) => (
                             <FilmCard key={film.id} film={film} />
                         ))}
                     </div>
+
+                    {/* Pesan kosong jika tidak ada film untuk baris kedua */}
+                    {filteredFilms.slice(4, 8).length === 0 && filteredFilms.length > 0 && (
+                        <div className="text-center py-6 text-zinc-600 text-xs">
+                            — Menampilkan semua film yang tersedia —
+                        </div>
+                    )}
                 </div>
 
             </div>
@@ -111,11 +132,9 @@ export default function Home() {
 function FilmCard({ film }) {
     return (
         <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition cursor-pointer p-3 flex flex-col justify-between shadow-lg group">
-            {/* Poster placeholder */}
             <div className="aspect-3/4 bg-[#262626] rounded-lg flex items-center justify-center mb-3 text-zinc-600 text-xs font-medium tracking-wider select-none transition group-hover:text-zinc-500">
                 Poster film
             </div>
-            {/* Info detail film */}
             <div>
                 <p className="text-sm font-medium text-white truncate mb-0.5 group-hover:text-purple-400 transition">{film.judul}</p>
                 <p className="text-[11px] text-zinc-500 mb-2">{film.genre}</p>

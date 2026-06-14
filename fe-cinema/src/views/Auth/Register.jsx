@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from '../../api/axios'; // Sesuaikan path-nya
+import axios from '../../api/axios'; 
 
 export default function Register() {
     const navigate = useNavigate();
