@@ -14,52 +14,58 @@ export default function AdminLayout({ children }) {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-[#121212] text-zinc-200 flex font-sans antialiased">
 
-            {/* Sidebar */}
-            <div className="w-56 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
-                {/* Logo */}
-                <div className="px-5 py-4 border-b border-gray-200">
-                    <div className="text-lg font-medium">
-                        Cine<span className="text-purple-600">Match</span>
+            {/* Sidebar — Diubah ke latar belakang hitam pekat */}
+            <div className="w-56 bg-[#1a1a1a] border-r border-zinc-800 flex flex-col flex-shrink-0">
+                
+                {/* Logo & Sub-header Admin Panel */}
+                <div className="px-5 py-4 border-b border-zinc-800">
+                    <div className="text-lg font-bold text-white tracking-wide">
+                        Cine<span className="text-[#a855f7]">Match</span>
                     </div>
-                    <div className="text-xs text-gray-400 mt-0.5">Admin Panel</div>
+                    <div className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider mt-0.5">Admin Panel</div>
                 </div>
 
-                {/* Menu */}
+                {/* Navigasi Menu Utama */}
                 <nav className="flex-1 px-3 py-4">
-                    <div className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-3 px-2">Menu</div>
-                    {menus.map((menu) => (
-                        <Link
-                            key={menu.href}
-                            href={menu.href}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm mb-1 transition ${
-                                window.location.pathname === menu.href
-                                    ? 'bg-purple-50 text-purple-700 font-medium'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                            }`}
-                        >
-                            <span>{menu.icon}</span>
-                            {menu.label}
-                        </Link>
-                    ))}
+                    <div className="text-[10px] text-zinc-600 font-semibold uppercase tracking-widest mb-3 px-2">Menu</div>
+                    {menus.map((menu) => {
+                        const isActive = window.location.pathname === menu.href;
+                        return (
+                            <Link
+                                key={menu.href}
+                                href={menu.href}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs mb-1 transition-all duration-200 ${
+                                    isActive
+                                        ? 'bg-purple-950/40 text-purple-400 font-semibold border border-purple-900/40'
+                                        : 'text-zinc-400 hover:bg-[#222222] hover:text-white'
+                                }`}
+                            >
+                                <span className={`text-sm transition-transform duration-200 ${isActive ? 'scale-110' : 'opacity-80'}`}>
+                                    {menu.icon}
+                                </span>
+                                {menu.label}
+                            </Link>
+                        );
+                    })}
                 </nav>
 
-                {/* User info */}
-                <div className="px-4 py-3 border-t border-gray-200">
+                {/* Informasi Identitas Akun User Admin (Bagian Bawah Sidebar) */}
+                <div className="px-4 py-3 border-t border-zinc-800 bg-[#161616]">
                     <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-xs font-medium text-purple-700">
-                            {user.name.charAt(0).toUpperCase()}
+                        <div className="w-7 h-7 rounded-full bg-purple-950/60 border border-purple-900/50 flex items-center justify-center text-xs font-bold text-purple-400 select-none flex-shrink-0">
+                            {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="text-xs font-medium truncate">{user.name}</div>
-                            <div className="text-xs text-gray-400">Admin</div>
+                            <div className="text-xs font-medium text-zinc-200 truncate">{user?.name || 'Admin'}</div>
+                            <div className="text-[10px] text-zinc-500 font-medium">Administrator</div>
                         </div>
                         <Link
                             href={route('logout')}
                             method="post"
                             as="button"
-                            className="text-xs text-red-400 hover:text-red-600"
+                            className="text-[11px] text-red-400/80 hover:text-red-400 font-medium transition px-1 py-0.5 rounded"
                         >
                             Keluar
                         </Link>
@@ -67,20 +73,21 @@ export default function AdminLayout({ children }) {
                 </div>
             </div>
 
-            {/* Konten */}
-            <div className="flex-1 flex flex-col">
-                {/* Top bar */}
-                <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-                    <div className="text-sm text-gray-500">
+            {/* Area Konten Utama (Sebelah Kanan Sidebar) */}
+            <div className="flex-1 flex flex-col min-w-0">
+                
+                {/* Top Navbar / Top Bar */}
+                <div className="bg-[#1a1a1a] border-b border-zinc-800 px-6 py-3.5 flex items-center justify-between">
+                    <div className="text-xs text-zinc-500 font-medium tracking-wide">
                         {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                     </div>
-                    <div className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">
-                        Admin
+                    <div className="text-[10px] bg-purple-950/50 text-purple-300 border border-purple-900/40 px-3 py-1 rounded-full font-semibold tracking-wider uppercase">
+                        Admin Root
                     </div>
                 </div>
 
-                {/* Page content */}
-                <main className="flex-1 p-6">
+                {/* Wadah Render Komponen Halaman Konten */}
+                <main className="flex-1 p-6 overflow-y-auto">
                     {children}
                 </main>
             </div>

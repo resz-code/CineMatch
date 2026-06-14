@@ -24,85 +24,91 @@ export default function AdminUsers({ auth }) {
 
             <div className="mb-6 flex justify-between items-center">
                 <div>
-                    <h1 className="text-xl font-medium">Kelola User</h1>
-                    <p className="text-sm text-gray-500 mt-1">Total {users.length} pengguna terdaftar</p>
+                    <h1 className="text-xl font-medium text-white">Kelola User</h1>
+                    <p className="text-sm text-zinc-400 mt-1">Total {users.length} pengguna terdaftar</p>
                 </div>
             </div>
 
-            {/* Statistik cepat */}
+            {/* Statistik cepat — Diubah ke kartu gelap berlatar #1a1a1a */}
             <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-white border border-gray-200 rounded-xl p-4">
-                    <div className="text-2xl font-medium mb-1">{users.length}</div>
-                    <div className="text-xs text-gray-500">Total user</div>
+                <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-4 shadow-sm">
+                    <div className="text-2xl font-bold text-white mb-1">{users.length}</div>
+                    <div className="text-xs text-zinc-500 font-medium uppercase tracking-wide">Total user</div>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-xl p-4">
-                    <div className="text-2xl font-medium mb-1">{users.filter(u => u.status === 'Aktif').length}</div>
-                    <div className="text-xs text-gray-500">User aktif</div>
+                <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-4 shadow-sm">
+                    <div className="text-2xl font-bold text-emerald-400 mb-1">{users.filter(u => u.status === 'Aktif').length}</div>
+                    <div className="text-xs text-zinc-500 font-medium uppercase tracking-wide">User aktif</div>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-xl p-4">
-                    <div className="text-2xl font-medium mb-1 text-red-500">{users.filter(u => u.status === 'Diblokir').length}</div>
-                    <div className="text-xs text-gray-500">Diblokir</div>
+                <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-4 shadow-sm">
+                    <div className="text-2xl font-bold text-red-500 mb-1">{users.filter(u => u.status === 'Diblokir').length}</div>
+                    <div className="text-xs text-zinc-500 font-medium uppercase tracking-wide">Diblokir</div>
                 </div>
             </div>
 
-            {/* Search */}
-            <div className="bg-white border border-gray-200 rounded-xl p-4 mb-4">
+            {/* Search Container */}
+            <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-4 mb-4">
                 <input
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Cari nama atau email..."
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    className="w-full bg-[#141414] border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
             </div>
 
-            {/* Tabel user */}
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-                <table className="w-full text-sm">
-                    <thead className="bg-gray-50 border-b border-gray-200">
+            {/* Tabel user Container */}
+            <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl overflow-hidden">
+                <table className="w-full text-sm text-zinc-300">
+                    <thead className="bg-[#141414] border-b border-zinc-800">
                         <tr>
-                            <th className="text-left px-5 py-3 text-xs text-gray-500 font-medium">No</th>
-                            <th className="text-left px-5 py-3 text-xs text-gray-500 font-medium">Nama</th>
-                            <th className="text-left px-5 py-3 text-xs text-gray-500 font-medium">Genre favorit</th>
-                            <th className="text-left px-5 py-3 text-xs text-gray-500 font-medium">Film</th>
-                            <th className="text-left px-5 py-3 text-xs text-gray-500 font-medium">Rating</th>
-                            <th className="text-left px-5 py-3 text-xs text-gray-500 font-medium">Bergabung</th>
-                            <th className="text-left px-5 py-3 text-xs text-gray-500 font-medium">Status</th>
-                            <th className="text-right px-5 py-3 text-xs text-gray-500 font-medium">Aksi</th>
+                            <th className="text-left px-5 py-3 text-xs text-zinc-400 font-medium uppercase tracking-wider">No</th>
+                            <th className="text-left px-5 py-3 text-xs text-zinc-400 font-medium uppercase tracking-wider">Nama</th>
+                            <th className="text-left px-5 py-3 text-xs text-zinc-400 font-medium uppercase tracking-wider">Genre favorit</th>
+                            <th className="text-left px-5 py-3 text-xs text-zinc-400 font-medium uppercase tracking-wider">Film</th>
+                            <th className="text-left px-5 py-3 text-xs text-zinc-400 font-medium uppercase tracking-wider">Rating</th>
+                            <th className="text-left px-5 py-3 text-xs text-zinc-400 font-medium uppercase tracking-wider">Bergabung</th>
+                            <th className="text-left px-5 py-3 text-xs text-zinc-400 font-medium uppercase tracking-wider">Status</th>
+                            <th className="text-right px-5 py-3 text-xs text-zinc-400 font-medium uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-zinc-800/50">
                         {filtered.map((user, index) => (
-                            <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
-                                <td className="px-5 py-3 text-gray-400">{index + 1}</td>
+                            <tr key={user.id} className="hover:bg-[#222222]/20 transition-colors">
+                                <td className="px-5 py-3 text-zinc-500">{index + 1}</td>
                                 <td className="px-5 py-3">
-                                    <div className="font-medium">{user.nama}</div>
-                                    <div className="text-xs text-gray-400">{user.email}</div>
+                                    <div className="font-semibold text-white text-xs">{user.nama}</div>
+                                    <div className="text-[11px] text-zinc-500 font-medium mt-0.5">{user.email}</div>
                                 </td>
-                                <td className="px-5 py-3 text-xs text-gray-500">{user.genre}</td>
-                                <td className="px-5 py-3">{user.film}</td>
-                                <td className="px-5 py-3">{user.rating}</td>
-                                <td className="px-5 py-3 text-xs text-gray-500">{user.join}</td>
+                                <td className="px-5 py-3 text-xs text-zinc-400 font-medium">{user.genre}</td>
+                                <td className="px-5 py-3 font-medium text-zinc-300">{user.film}</td>
+                                <td className="px-5 py-3 font-medium text-zinc-300">{user.rating}</td>
+                                <td className="px-5 py-3 text-xs text-zinc-500">{user.join}</td>
                                 <td className="px-5 py-3">
-                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
                                         user.status === 'Aktif'
-                                            ? 'bg-teal-100 text-teal-700'
-                                            : 'bg-red-100 text-red-700'
+                                            ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-900/30'
+                                            : 'bg-red-950/50 text-red-400 border border-red-900/30'
                                     }`}>
                                         {user.status}
                                     </span>
                                 </td>
-                                <td className="px-5 py-3 text-right">
+                                <td className="px-5 py-3 text-right text-xs">
                                     {user.status === 'Aktif' ? (
-                                        <button className="text-xs text-red-500 hover:underline">Blokir</button>
+                                        <button className="text-red-400/90 hover:text-red-400 font-medium hover:underline transition">Blokir</button>
                                     ) : (
-                                        <button className="text-xs text-teal-600 hover:underline">Aktifkan</button>
+                                        <button className="text-emerald-400 hover:text-emerald-300 font-medium hover:underline transition">Aktifkan</button>
                                     )}
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+
+                {filtered.length === 0 && (
+                    <div className="text-center py-10 text-zinc-500 text-sm">
+                        Tidak ada user yang sesuai pencarian
+                    </div>
+                )}
             </div>
         </AdminLayout>
     );

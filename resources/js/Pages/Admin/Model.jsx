@@ -7,33 +7,35 @@ export default function AdminModel() {
             <Head title="Model ML — CineMatch" />
 
             <div className="mb-6">
-                <h1 className="text-xl font-medium">Model ML</h1>
-                <p className="text-sm text-gray-500 mt-1">Kelola dan pantau performa model rekomendasi</p>
+                <h1 className="text-xl font-medium text-white">Model ML</h1>
+                <p className="text-sm text-zinc-400 mt-1">Kelola dan pantau performa model rekomendasi</p>
             </div>
 
             <div className="grid grid-cols-2 gap-6 mb-6">
-                <div className="bg-white border border-gray-200 rounded-xl p-5">
-                    <h2 className="font-medium text-sm mb-4">Model aktif</h2>
+                {/* Panel Model Aktif */}
+                <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-5 shadow-sm">
+                    <h2 className="font-medium text-sm text-zinc-300 mb-4">Model aktif</h2>
                     <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-center p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                        <div className="flex justify-between items-center p-3 bg-purple-950/20 border border-purple-900/40 rounded-lg">
                             <div>
-                                <div className="text-sm font-medium text-purple-800">Collaborative Filtering v2</div>
-                                <div className="text-xs text-purple-600 mt-0.5">Terakhir dilatih: 3 hari lalu</div>
+                                <div className="text-sm font-semibold text-purple-300">Collaborative Filtering v2</div>
+                                <div className="text-xs text-purple-400/80 mt-0.5">Terakhir dilatih: 3 hari lalu</div>
                             </div>
-                            <span className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-medium">Aktif</span>
+                            <span className="text-xs bg-emerald-950/50 text-emerald-400 border border-emerald-900/30 px-2.5 py-0.5 rounded-full font-medium">Aktif</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div className="flex justify-between items-center p-3 bg-[#141414] border border-zinc-800 rounded-lg">
                             <div>
-                                <div className="text-sm font-medium text-gray-600">Content-Based Filtering v1</div>
-                                <div className="text-xs text-gray-400 mt-0.5">Terakhir dilatih: 2 minggu lalu</div>
+                                <div className="text-sm font-medium text-zinc-400">Content-Based Filtering v1</div>
+                                <div className="text-xs text-zinc-500 mt-0.5">Terakhir dilatih: 2 minggu lalu</div>
                             </div>
-                            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full font-medium">Nonaktif</span>
+                            <span className="text-xs bg-zinc-800 text-zinc-400 px-2.5 py-0.5 rounded-full font-medium">Nonaktif</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl p-5">
-                    <h2 className="font-medium text-sm mb-4">Performa model</h2>
+                {/* Panel Performa Model Evaluasi */}
+                <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-5 shadow-sm">
+                    <h2 className="font-medium text-sm text-zinc-300 mb-4">Performa model</h2>
                     <div className="flex flex-col gap-3">
                         {[
                             { label: 'Akurasi', value: '87.3%', pct: 87 },
@@ -43,11 +45,11 @@ export default function AdminModel() {
                         ].map((m) => (
                             <div key={m.label}>
                                 <div className="flex justify-between text-xs mb-1">
-                                    <span className="text-gray-600">{m.label}</span>
-                                    <span className="font-medium">{m.value}</span>
+                                    <span className="text-zinc-400 font-medium">{m.label}</span>
+                                    <span className="font-semibold text-white">{m.value}</span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-1.5">
-                                    <div className="bg-purple-500 h-1.5 rounded-full" style={{ width: `${m.pct}%` }}/>
+                                <div className="w-full bg-[#141414] rounded-full h-1.5 border border-zinc-800/50">
+                                    <div className="bg-purple-500 h-1.5 rounded-full shadow-[0_0_8px_rgba(147,51,234,0.3)]" style={{ width: `${m.pct}%` }}/>
                                 </div>
                             </div>
                         ))}
@@ -55,27 +57,28 @@ export default function AdminModel() {
                 </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-                <h2 className="font-medium text-sm mb-4">Retrain model</h2>
+            {/* Panel Retrain Model */}
+            <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-5 shadow-sm">
+                <h2 className="font-medium text-sm text-zinc-300 mb-4">Retrain model</h2>
                 <div className="grid grid-cols-3 gap-4 mb-5">
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                        <div className="text-lg font-medium mb-1">4.891</div>
-                        <div className="text-xs text-gray-500">Total rating tersedia</div>
+                    <div className="bg-[#141414] border border-zinc-800/60 rounded-lg p-3 text-center">
+                        <div className="text-lg font-bold text-white mb-1">4.891</div>
+                        <div className="text-xs text-zinc-500 font-medium">Total rating tersedia</div>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                        <div className="text-lg font-medium mb-1">328</div>
-                        <div className="text-xs text-gray-500">Total user aktif</div>
+                    <div className="bg-[#141414] border border-zinc-800/60 rounded-lg p-3 text-center">
+                        <div className="text-lg font-bold text-white mb-1">328</div>
+                        <div className="text-xs text-zinc-500 font-medium">Total user aktif</div>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                        <div className="text-lg font-medium mb-1">1.240</div>
-                        <div className="text-xs text-gray-500">Total film</div>
+                    <div className="bg-[#141414] border border-zinc-800/60 rounded-lg p-3 text-center">
+                        <div className="text-lg font-bold text-white mb-1">1.240</div>
+                        <div className="text-xs text-zinc-500 font-medium">Total film</div>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="bg-purple-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition">
+                    <button className="bg-purple-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 active:scale-95 transition-all shadow-md shadow-purple-900/20">
                         🔄 Mulai retrain
                     </button>
-                    <span className="text-xs text-gray-400">Estimasi waktu: 5-10 menit</span>
+                    <span className="text-xs text-zinc-500 font-medium">Estimasi waktu: 5-10 menit</span>
                 </div>
             </div>
         </AdminLayout>
