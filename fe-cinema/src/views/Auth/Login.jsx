@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -19,12 +20,35 @@ export default function Login() {
     const submit = async (e) => {
         e.preventDefault();
         setProcessing(true);
+        setErrors({}); // Reset error bawaan Laravel
+        setStatus(null); // Reset alert pesan error (misal: "Password salah")
+
+        try {
+            // Tembak data ke API Login Backend
+            const response = await axios.post('http://127.0.0.1:8000/api/login', data);
+            
+            console.log("Login Sukses:", response.data);
+            alert('Login Berhasil! Selamat datang.');
+            
+            // Arahkan user ke halaman Beranda/Dashboard setelah sukses
+            navigate('/'); 
+        } catch (error) {
+            console.error("Login Gagal:", error);
+            
+            // Jika backend merespon (misal 401 Unauthorized / salah password)
+            if (error.response) {
+                if (error.response.status === 401) {
+                    setStatus('Email atau Password salah!');
+                } else if (error.response.data.errors) {
+                    setErrors(error.response.data.errors);
+                }
+            } else {
+                setStatus('Terjadi kesalahan pada server. Pastikan backend Laravel menyala.');
+            }
+        } finally {
+            setProcessing(false);
+        }
         
-        // TODO: Nanti di sini kita tambahkan Axios untuk tembak API Laravel
-        console.log("Data Login:", data);
-        
-        // Simulasi loading
-        setTimeout(() => setProcessing(false), 1000);
     };
 
     return (

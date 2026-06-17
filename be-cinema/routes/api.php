@@ -11,3 +11,4 @@ use App\Http\Controllers\AuthController;
 
 // Pintu masuk (Endpoint) untuk registrasi
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
