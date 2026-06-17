@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Register() {
     const navigate = useNavigate();
@@ -32,11 +33,36 @@ export default function Register() {
     const submit = async (e) => {
         e.preventDefault();
         setProcessing(true);
+        setErrors({}); // Reset error sebelum submit
+
+        if (data.genres.length < 3) {
+            setErrors({ genres: 'Pilih minimal 3 genre' });
+            setProcessing(false);
+            return;
+        }
+
+        try {
+            // Tembak data langsung ke API Laravel Backend
+            const response = await axios.post('http://127.0.0.1:8000/api/register', data);
+            
+            console.log("Registrasi Sukses:", response.data);
+            alert('Akun berhasil dibuat!');
+            
+            // Alihkan user ke halaman login setelah sukses register
+            navigate('/login');
+        } catch (error) {
+            console.error("Error saat registrasi:", error);
+
+            // Jika Laravel mengirimkan error validasi (misal email sudah terdaftar)
+            if (error.response && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+            } else {
+                alert('Terjadi kesalahan pada server. Pastikan Backend Laravel menyala.');
+            }
+        } finally {
+            setProcessing(false);
+        }
         
-        // TODO: Integrasi Axios ke API Register Laravel
-        console.log("Data Register:", data);
-        
-        setTimeout(() => setProcessing(false), 1000);
     };
 
     return (
