@@ -106,7 +106,7 @@ Buka terminal baru dan arahkan ke direktori fe-cinema:
 
 ### 0. Masuk ke folder fe
 ```
-cd be-cinema
+cd fe-cinema
 ```
 
 ### 1. Instal semua dependensi Node.js
