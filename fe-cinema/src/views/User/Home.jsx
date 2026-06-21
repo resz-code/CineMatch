@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from '../../api/axios'; // Pastikan path ini sesuai dengan file axios.js Anda
+import axios from '../../api/axios';
 
 export default function Home() {
     // State untuk menyimpan data dari Backend
@@ -28,12 +28,11 @@ export default function Home() {
                 // 2. Ambil data film dari database
                 const filmRes = await axios.get('/films');
                 
-                // 3. Petakan (Map) data dari Laravel agar sesuai dengan properti UI
+                // 3. Petakan (Map) d
                 const formattedFilms = filmRes.data.map(film => ({
                     id: film.id,
                     judul: film.judul,
                     tahun: film.tahun,
-                    // Karena kita menggunakan with('genre') di Laravel, nama genre ada di dalam object
                     genre: film.genre ? film.genre.nama : 'Lainnya', 
                     rating: film.rating_avg,
                     sinopsis: film.sinopsis,
@@ -168,7 +167,7 @@ export default function Home() {
                 )}
             </div>
 
-            {/* --- LAYAR LAYALANG / POP-UP MODAL DETAIL FILM --- */}
+            {/* --- POP-UP MODAL DETAIL FILM --- */}
             {isModalOpen && selectedFilm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
                     
