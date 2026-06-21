@@ -1,23 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from '../../api/axios'; // Pastikan path ini sesuai dengan file axios.js Anda
 
 export default function Home() {
-    // Simulasi data user
-    const [user] = useState({ name: 'Tester' });
+    // State untuk menyimpan data dari Backend
+    const [user, setUser] = useState({ name: 'Pengguna' });
+    const [films, setFilms] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const genres = ['Semua', 'Aksi', 'Drama', 'Sci-Fi', 'Komedi', 'Horor', 'Animasi'];
-
-    const dummyFilms = [
-        { id: 1, judul: 'Interstellar', tahun: '2014', genre: 'Sci-Fi', rating: 4.8, match: 95, sinopsis: 'Ketika Bumi di masa depan tidak lagi mampu menopang kehidupan manusia akibat krisis pangan global, sekelompok astronot melakukan misi paling penting dalam sejarah manusia: menjelajahi lubang cacing di luar angkasa demi mencari planet baru yang layak huni.', info: 'Christopher Nolan • 2j 49m • PG-13' },
-        { id: 2, judul: 'The Dark Knight', tahun: '2008', genre: 'Aksi', rating: 4.9, match: 92, sinopsis: 'Batman menghadapi ancaman terbesar Gotham City dari dalang kriminal sadis yang dikenal sebagai The Joker, yang berusaha menghancurkan tatanan moral kota.', info: 'Christopher Nolan • 2j 32m • PG-13' },
-        { id: 3, judul: 'Spirited Away', tahun: '2001', genre: 'Animasi', rating: 4.7, match: 88, sinopsis: 'Seorang gadis kecil berusia 10 tahun tersesat di dunia roh gaib dan magis. Setelah orang tuanya diubah menjadi babi, dia harus bekerja di pemandian roh untuk membebaskan mereka.', info: 'Hayao Miyazaki • 2j 5m • PG' },
-        { id: 4, judul: 'Parasite', tahun: '2019', genre: 'Drama', rating: 4.6, match: 85, sinopsis: 'Kisah kesenjangan kelas sosial yang sengit antara keluarga miskin yang licik dan keluarga kaya yang naif, memicu serangkaian insiden tak terduga yang tragis.', info: 'Bong Joon Ho • 2j 12m • R' },
-        { id: 5, judul: 'Inception', tahun: '2010', genre: 'Sci-Fi', rating: 4.8, match: 91, sinopsis: 'Seorang pencuri lihai yang mencuri rahasia berharga dari dalam alam bawah sadar mimpi manusia mendapatkan kesempatan terakhir untuk membersihkan namanya dengan melakukan tugas sebaliknya: menanamkan ide.', info: 'Christopher Nolan • 2j 28m • PG-13' },
-        { id: 6, judul: 'Oppenheimer', tahun: '2023', genre: 'Drama', rating: 4.7, match: 87, sinopsis: 'Kisah epik tentang fisikawan teoretis J. Robert Oppenheimer yang memimpin Proyek Manhattan dalam menciptakan bom atom pertama di dunia demi mengakhiri Perang Dunia II.', info: 'Christopher Nolan • 3j 0m • R' },
-        { id: 7, judul: 'Dune Part Two', tahun: '2024', genre: 'Sci-Fi', rating: 4.5, match: 83, sinopsis: 'Paul Atreides bersatu kembali dengan Chani dan suku Fremen untuk membalas dendam terhadap para konspirator yang menghancurkan keluarganya, berjuang mencegah masa depan mengerikan.', info: 'Denis Villeneuve • 2j 46m • PG-13' },
-        { id: 8, judul: 'Past Lives', tahun: '2023', genre: 'Drama', rating: 4.4, match: 80, sinopsis: 'Dua teman masa kecil yang terpisah dalam waktu lama terhubung kembali selama satu minggu di New York, di mana mereka menghadapi takdir, cinta, dan pilihan hidup mereka.', info: 'Celine Song • 1j 45m • PG-13' },
-    ];
-
     const [activeGenre, setActiveGenre] = useState('Semua');
 
     // State untuk kontrol Modal Pop-up Detail Film
@@ -25,6 +16,43 @@ export default function Home() {
     const [selectedFilm, setSelectedFilm] = useState(null);
     const [userRating, setUserRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
+
+    // Mengambil data dari Laravel saat komponen pertama kali dimuat
+    useEffect(() => {
+        const fetchHomeData = async () => {
+            try {
+                // 1. Ambil data user yang sedang login
+                const userRes = await axios.get('/user');
+                setUser(userRes.data);
+
+                // 2. Ambil data film dari database
+                const filmRes = await axios.get('/films');
+                
+                // 3. Petakan (Map) data dari Laravel agar sesuai dengan properti UI
+                const formattedFilms = filmRes.data.map(film => ({
+                    id: film.id,
+                    judul: film.judul,
+                    tahun: film.tahun,
+                    // Karena kita menggunakan with('genre') di Laravel, nama genre ada di dalam object
+                    genre: film.genre ? film.genre.nama : 'Lainnya', 
+                    rating: film.rating_avg,
+                    sinopsis: film.sinopsis,
+                    poster: film.poster,
+                    // Data sementara karena ML & kolom durasi belum dibuat
+                    match: Math.floor(Math.random() * (99 - 75 + 1)) + 75, 
+                    info: 'Sutradara • 2j 15m • PG-13'
+                }));
+
+                setFilms(formattedFilms);
+            } catch (error) {
+                console.error("Gagal mengambil data dari server:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchHomeData();
+    }, []);
 
     // Fungsi untuk membuka pop-up dan mengirim data film
     const bukaDetailFilm = (film) => {
@@ -34,7 +62,7 @@ export default function Home() {
     };
 
     // Jalankan logika penyaringan (filtering) berdasarkan genre aktif
-    const filteredFilms = dummyFilms.filter((film) => 
+    const filteredFilms = films.filter((film) => 
         activeGenre === 'Semua' ? true : film.genre === activeGenre
     );
 
@@ -87,52 +115,57 @@ export default function Home() {
                     ))}
                 </div>
 
-                {/* Bagian: Rekomendasi untuk kamu */}
-                <div className="mb-10">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-sm font-medium text-white tracking-wide">Rekomendasi untukmu</h3>
-                        <Link to="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
-                            Lihat semua →
-                        </Link>
+                {isLoading ? (
+                    <div className="text-center py-20 text-zinc-500">
+                        Memuat data film...
                     </div>
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {filteredFilms.slice(0, 4).map((film) => (
-                            <FilmCard key={film.id} film={film} onClickCard={bukaDetailFilm} />
-                        ))}
-                    </div>
+                ) : (
+                    <>
+                        {/* Bagian: Rekomendasi untuk kamu */}
+                        <div className="mb-10">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-sm font-medium text-white tracking-wide">Rekomendasi untukmu</h3>
+                                <Link to="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
+                                    Lihat semua →
+                                </Link>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                {filteredFilms.slice(0, 4).map((film) => (
+                                    <FilmCard key={film.id} film={film} onClickCard={bukaDetailFilm} />
+                                ))}
+                            </div>
 
-                    {/* Pesan kosong jika filter tidak menghasilkan data di baris pertama */}
-                    {filteredFilms.slice(0, 4).length === 0 && (
-                        <div className="text-center py-10 text-zinc-500 text-sm border border-dashed border-zinc-800 rounded-xl">
-                            Belum ada rekomendasi untuk genre {activeGenre}
+                            {filteredFilms.slice(0, 4).length === 0 && (
+                                <div className="text-center py-10 text-zinc-500 text-sm border border-dashed border-zinc-800 rounded-xl">
+                                    Belum ada rekomendasi untuk genre {activeGenre}
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
 
-                {/* Bagian: Sedang populer */}
-                <div>
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-sm font-medium text-white tracking-wide">Sedang populer</h3>
-                        <Link to="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
-                            Lihat semua →
-                        </Link>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {filteredFilms.slice(4, 8).map((film) => (
-                            <FilmCard key={film.id} film={film} onClickCard={bukaDetailFilm} />
-                        ))}
-                    </div>
+                        {/* Bagian: Sedang populer */}
+                        <div>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-sm font-medium text-white tracking-wide">Sedang populer</h3>
+                                <Link to="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
+                                    Lihat semua →
+                                </Link>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                {filteredFilms.slice(4, 8).map((film) => (
+                                    <FilmCard key={film.id} film={film} onClickCard={bukaDetailFilm} />
+                                ))}
+                            </div>
 
-                    {/* Pesan kosong jika tidak ada film untuk baris kedua */}
-                    {filteredFilms.slice(4, 8).length === 0 && filteredFilms.length > 0 && (
-                        <div className="text-center py-6 text-zinc-600 text-xs">
-                            — Menampilkan semua film yang tersedia —
+                            {filteredFilms.slice(4, 8).length === 0 && filteredFilms.length > 0 && (
+                                <div className="text-center py-6 text-zinc-600 text-xs">
+                                    — Menampilkan semua film yang tersedia —
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-
+                    </>
+                )}
             </div>
 
             {/* --- LAYAR LAYALANG / POP-UP MODAL DETAIL FILM --- */}
@@ -160,8 +193,12 @@ export default function Home() {
                             
                             {/* KOLOM KIRI */}
                             <div className="flex flex-col gap-3">
-                                <div className="w-full aspect-[3/4] bg-[#262626] border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 text-xs font-medium select-none shadow-inner">
-                                    Poster film
+                                <div className="w-full aspect-[3/4] bg-[#262626] border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 text-xs font-medium select-none shadow-inner overflow-hidden">
+                                    {selectedFilm.poster ? (
+                                        <img src={selectedFilm.poster} alt={selectedFilm.judul} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span>Poster film</span>
+                                    )}
                                 </div>
                                 
                                 {/* Tombol Gimmick Tonton Sekarang */}
@@ -210,7 +247,11 @@ export default function Home() {
                                                 key={star}
                                                 type="button"
                                                 className="text-2xl transition-transform duration-100 hover:scale-125 focus:outline-none"
-                                                onClick={() => setUserRating(star)}
+                                                onClick={() => {
+                                                    setUserRating(star);
+                                                    console.log(`Rating ${star} diberikan untuk film ID: ${selectedFilm.id}`);
+                                                    // TODO: Nanti kita tambahkan API POST /ratings di sini
+                                                }}
                                                 onMouseEnter={() => setHoverRating(star)}
                                                 onMouseLeave={() => setHoverRating(0)}
                                             >
@@ -247,16 +288,20 @@ export default function Home() {
     );
 }
 
-// Komponen Card Film (Menerima props onClickCard)
+// Komponen Card Film
 function FilmCard({ film, onClickCard }) {
     return (
         <div 
             onClick={() => onClickCard(film)}
             className="bg-[#1a1a1a] border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition cursor-pointer p-3 flex flex-col justify-between shadow-lg group"
         >
-            {/* Poster placeholder */}
-            <div className="aspect-3/4 bg-[#262626] rounded-lg flex items-center justify-center mb-3 text-zinc-600 text-xs font-medium tracking-wider select-none transition group-hover:text-zinc-500">
-                Poster film
+            {/* Poster placeholder atau gambar asli */}
+            <div className="aspect-3/4 bg-[#262626] rounded-lg flex items-center justify-center mb-3 text-zinc-600 text-xs font-medium tracking-wider select-none transition group-hover:text-zinc-500 overflow-hidden">
+                {film.poster ? (
+                    <img src={film.poster} alt={film.judul} className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
+                ) : (
+                    "Poster film"
+                )}
             </div>
             {/* Info detail film */}
             <div>

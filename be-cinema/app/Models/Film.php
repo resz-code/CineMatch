@@ -21,6 +21,14 @@ class Film extends Model
         'rating_avg',
     ];
 
+    public function getPosterAttribute($value)
+    {
+        if ($value) {
+            return asset('storage/' . $value);
+        }
+        return null; // Jika poster kosong
+    }
+
     /**
      * BelongsTo: Film terikat pada satu genre
      */
