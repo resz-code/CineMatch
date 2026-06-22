@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Import Layout Baru
 import MainLayout from './layouts/MainLayout';
+import AdminLayout from './layouts/AdminLayout'; 
 
 // Import halaman Auth
 import Login from './views/Auth/Login';
@@ -39,7 +40,7 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/confirm-password" element={<ConfirmPassword />} />
 
-        {/* Rute User */}
+        {/* Rute User (Menggunakan MainLayout) */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/home" element={<Home />} />
@@ -48,12 +49,15 @@ function App() {
           <Route path="/riwayat" element={<Riwayat />} />
         </Route>
 
-        {/* Rute Admin */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/film" element={<AdminFilm />} />
-        <Route path="/admin/laporan" element={<AdminLaporan />} />
-        <Route path="/admin/model" element={<AdminModel />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
+        {/* Rute Admin (Sekarang Dibungkus Menggunakan AdminLayout) */}
+        {/* Menggunakan format bersarang agar Sidebar di kiri otomatis ada di semua halaman ini */}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/film" element={<AdminFilm />} />
+          <Route path="/admin/laporan" element={<AdminLaporan />} />
+          <Route path="/admin/model" element={<AdminModel />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+        </Route>
 
         {/* Rute 404 */}
         <Route path="*" element={
