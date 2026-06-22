@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from '../../api/axios';
 
 export default function Home() {
-    // State untuk menyimpan data dari Backend
+    const navigate = useNavigate();
+
     const [user, setUser] = useState({ name: 'Pengguna' });
     const [films, setFilms] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const genres = ['Semua', 'Aksi', 'Drama', 'Sci-Fi', 'Komedi', 'Horor', 'Animasi'];
     const [activeGenre, setActiveGenre] = useState('Semua');
+    
+    // State untuk form pencarian
+    const [searchQuery, setSearchQuery] = useState('');
 
     // State untuk kontrol Modal Pop-up Detail Film
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +32,7 @@ export default function Home() {
                 // 2. Ambil data film dari database
                 const filmRes = await axios.get('/films');
                 
-                // 3. Petakan (Map) d
+                // 3. Petakan data
                 const formattedFilms = filmRes.data.map(film => ({
                     id: film.id,
                     judul: film.judul,
@@ -37,7 +41,6 @@ export default function Home() {
                     rating: film.rating_avg,
                     sinopsis: film.sinopsis,
                     poster: film.poster,
-                    // Data sementara karena ML & kolom durasi belum dibuat
                     match: Math.floor(Math.random() * (99 - 75 + 1)) + 75, 
                     info: 'Sutradara • 2j 15m • PG-13'
                 }));
@@ -46,7 +49,8 @@ export default function Home() {
             } catch (error) {
                 console.error("Gagal mengambil data dari server:", error);
             } finally {
-                setIsLoading(false);
+                // Simulasi delay sedikit agar animasi loading
+                setTimeout(() => setIsLoading(false), 800);
             }
         };
 
@@ -60,13 +64,31 @@ export default function Home() {
         setUserRating(0); // Reset bintang setiap kali membuka film baru
     };
 
+    // Fungsi handle pencarian
+    const handleSearch = (e) => {
+        e.preventDefault();
+        // Redirect ke halaman jelajahi dan bawa kata kunci pencariannya (opsional untuk ditangkap nanti)
+        navigate('/jelajahi', { state: { keyword: searchQuery } });
+    };
+
     // Jalankan logika penyaringan (filtering) berdasarkan genre aktif
     const filteredFilms = films.filter((film) => 
         activeGenre === 'Semua' ? true : film.genre === activeGenre
     );
 
+    // Jika sedang loading, tampilkan layar memuat penuh
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#141414] flex flex-col items-center justify-center font-sans">
+                <div className="w-12 h-12 border-4 border-zinc-800 border-t-purple-500 rounded-full animate-spin mb-4"></div>
+                <p className="text-zinc-500 text-sm animate-pulse tracking-wide">Menyiapkan rekomendasi untukmu...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-[#141414] font-sans relative">
+        // Menambahkan class untuk menyembunyikan scrollbar bawaan browser tapi tetap bisa di-scroll
+        <div className="min-h-screen bg-[#141414] font-sans relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-none]">
             
             {/* Hero section */}
             <div className="border-b border-zinc-800/60 px-6 py-10 text-center">
@@ -78,10 +100,12 @@ export default function Home() {
                 </p>
                 <form 
                     className="flex gap-2 max-w-lg mx-auto"
-                    onSubmit={(e) => { e.preventDefault(); console.log("Mencari film..."); }}
+                    onSubmit={handleSearch}
                 >
                     <input
                         type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Cari judul film, genre, aktor..."
                         className="flex-1 bg-[#1a1a1a] border border-zinc-800 rounded-lg px-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 transition"
                     />
@@ -114,67 +138,60 @@ export default function Home() {
                     ))}
                 </div>
 
-                {isLoading ? (
-                    <div className="text-center py-20 text-zinc-500">
-                        Memuat data film...
+                {/* Bagian: Rekomendasi untuk kamu */}
+                <div className="mb-10">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-sm font-medium text-white tracking-wide">Rekomendasi untukmu</h3>
+                        <Link to="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
+                            Lihat semua →
+                        </Link>
                     </div>
-                ) : (
-                    <>
-                        {/* Bagian: Rekomendasi untuk kamu */}
-                        <div className="mb-10">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-sm font-medium text-white tracking-wide">Rekomendasi untukmu</h3>
-                                <Link to="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
-                                    Lihat semua →
-                                </Link>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                {filteredFilms.slice(0, 4).map((film) => (
-                                    <FilmCard key={film.id} film={film} onClickCard={bukaDetailFilm} />
-                                ))}
-                            </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {filteredFilms.slice(0, 4).map((film) => (
+                            <FilmCard key={film.id} film={film} onClickCard={bukaDetailFilm} />
+                        ))}
+                    </div>
 
-                            {filteredFilms.slice(0, 4).length === 0 && (
-                                <div className="text-center py-10 text-zinc-500 text-sm border border-dashed border-zinc-800 rounded-xl">
-                                    Belum ada rekomendasi untuk genre {activeGenre}
-                                </div>
-                            )}
+                    {filteredFilms.slice(0, 4).length === 0 && (
+                        <div className="text-center py-10 text-zinc-500 text-sm border border-dashed border-zinc-800 rounded-xl">
+                            Belum ada rekomendasi untuk genre {activeGenre}
                         </div>
+                    )}
+                </div>
 
-                        {/* Bagian: Sedang populer */}
-                        <div>
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-sm font-medium text-white tracking-wide">Sedang populer</h3>
-                                <Link to="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
-                                    Lihat semua →
-                                </Link>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                {filteredFilms.slice(4, 8).map((film) => (
-                                    <FilmCard key={film.id} film={film} onClickCard={bukaDetailFilm} />
-                                ))}
-                            </div>
+                {/* Bagian: Sedang populer */}
+                <div>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-sm font-medium text-white tracking-wide">Sedang populer</h3>
+                        <Link to="/jelajahi" className="text-xs text-purple-400 hover:underline transition">
+                            Lihat semua →
+                        </Link>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {filteredFilms.slice(4, 8).map((film) => (
+                            <FilmCard key={film.id} film={film} onClickCard={bukaDetailFilm} />
+                        ))}
+                    </div>
 
-                            {filteredFilms.slice(4, 8).length === 0 && filteredFilms.length > 0 && (
-                                <div className="text-center py-6 text-zinc-600 text-xs">
-                                    — Menampilkan semua film yang tersedia —
-                                </div>
-                            )}
+                    {filteredFilms.slice(4, 8).length === 0 && filteredFilms.length > 0 && (
+                        <div className="text-center py-6 text-zinc-600 text-xs">
+                            — Menampilkan semua film yang tersedia —
                         </div>
-                    </>
-                )}
+                    )}
+                </div>
+
             </div>
 
             {/* --- POP-UP MODAL DETAIL FILM --- */}
             {isModalOpen && selectedFilm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-none]">
                     
                     {/* Kotak Utama Pop-Up */}
-                    <div className="bg-[#1a1a1a] w-full max-w-2xl rounded-2xl border border-zinc-800 p-6 shadow-2xl relative transition-all duration-300">
+                    <div className="bg-[#1a1a1a] w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-800 p-6 shadow-2xl relative transition-all duration-300 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-none]">
                         
-                        {/* Tombol Kembali (Menggantikan Tombol Silang X) */}
+                        {/* Tombol Kembali */}
                         <button 
                             onClick={() => setIsModalOpen(false)}
                             className="absolute top-4 right-4 text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-800 px-3 py-1.5 rounded-lg flex items-center gap-1 transition text-xs font-medium border border-zinc-700/50"
@@ -183,26 +200,30 @@ export default function Home() {
                         </button>
 
                         {/* Label Atas */}
-                        <div className="text-[10px] font-bold text-purple-500 uppercase tracking-wider mb-4 border-b border-zinc-800/80 pb-2">
+                        <div className="text-[10px] font-bold text-purple-500 uppercase tracking-wider mb-4 border-b border-zinc-800/80 pb-2 pr-20">
                             Detail Informasi Film
                         </div>
 
-                        {/* Grid Konten: Kiri (Poster & Gimmick), Kanan (Informasi) */}
+                        {/* Grid Konten: Kiri */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start">
                             
                             {/* KOLOM KIRI */}
                             <div className="flex flex-col gap-3">
-                                <div className="w-full aspect-[3/4] bg-[#262626] border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 text-xs font-medium select-none shadow-inner overflow-hidden">
+                                <div className="w-full h-auto bg-[#1a1a1a] border border-zinc-800 rounded-xl overflow-hidden flex items-center justify-center shadow-inner">
                                     {selectedFilm.poster ? (
-                                        <img src={selectedFilm.poster} alt={selectedFilm.judul} className="w-full h-full object-cover" />
+                                        <img 
+                                            src={selectedFilm.poster} 
+                                            alt={selectedFilm.judul} 
+                                            className="w-full h-auto block object-contain" 
+                                        />
                                     ) : (
-                                        <span>Poster film</span>
+                                        <span className="py-20 text-zinc-600 text-xs font-medium">Poster film</span>
                                     )}
                                 </div>
                                 
-                                {/* Tombol Gimmick Tonton Sekarang */}
+                                {/* Tombol Tonton Sekarang */}
                                 <button 
-                                    onClick={() => alert('Fitur streaming film belum tersedia. Ini hanya simulasi tampilan!')}
+                                    onClick={() => window.open('https://www.tix.id/', '_blank')}
                                     className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2.5 rounded-lg transition active:scale-95 shadow-md shadow-purple-600/10"
                                 >
                                     🍿 Tonton Sekarang
@@ -249,7 +270,6 @@ export default function Home() {
                                                 onClick={() => {
                                                     setUserRating(star);
                                                     console.log(`Rating ${star} diberikan untuk film ID: ${selectedFilm.id}`);
-                                                    // TODO: Nanti kita tambahkan API POST /ratings di sini
                                                 }}
                                                 onMouseEnter={() => setHoverRating(star)}
                                                 onMouseLeave={() => setHoverRating(0)}
@@ -297,7 +317,11 @@ function FilmCard({ film, onClickCard }) {
             {/* Poster placeholder atau gambar asli */}
             <div className="aspect-3/4 bg-[#262626] rounded-lg flex items-center justify-center mb-3 text-zinc-600 text-xs font-medium tracking-wider select-none transition group-hover:text-zinc-500 overflow-hidden">
                 {film.poster ? (
-                    <img src={film.poster} alt={film.judul} className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
+                    <img 
+                    src={film.poster} 
+                    alt={film.judul} 
+                    className="w-full h-full object-cover object-top transition duration-300 group-hover:scale-105" 
+                />
                 ) : (
                     "Poster film"
                 )}
