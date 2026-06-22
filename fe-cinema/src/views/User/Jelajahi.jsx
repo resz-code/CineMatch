@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from '../../api/axios'; 
 
 export default function Jelajahi() {
+    const [films, setFilms] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
     const [activeGenre, setActiveGenre] = useState('Semua');
     const [search, setSearch] = useState('');
     const [minRating, setMinRating] = useState(0);
@@ -14,20 +18,35 @@ export default function Jelajahi() {
 
     const genres = ['Semua','Aksi','Drama','Sci-Fi','Komedi','Horor','Animasi','Romansa','Fantasi','Misteri'];
 
-    const dummyFilms = [
-        { id: 1, judul: 'Interstellar', tahun: '2014', info: 'Christopher Nolan • 2j 49m • PG-13', genre: 'Sci-Fi', rating: 4.8, match: 95, sinopsis: 'Ketika Bumi di masa depan tidak lagi mampu menopang kehidupan manusia akibat krisis pangan global, sekelompok astronot melakukan misi paling penting dalam sejarah manusia: menjelajahi lubang cacing di luar angkasa demi mencari planet baru yang layak huni.' },
-        { id: 2, judul: 'The Dark Knight', tahun: '2008', info: 'Christopher Nolan • 2j 32m • PG-13', genre: 'Aksi', rating: 4.9, match: 92, sinopsis: 'Batman menghadapi ancaman terbesar Gotham City dari dalang kriminal sadis yang dikenal sebagai The Joker, yang berusaha menghancurkan tatanan moral kota.' },
-        { id: 3, judul: 'Spirited Away', tahun: '2001', info: 'Hayao Miyazaki • 2j 5m • PG', genre: 'Animasi', rating: 4.7, match: 88, sinopsis: 'Seorang gadis kecil terjebak di dunia roh yang misterius dan harus mencari cara untuk kembali ke dunia manusia.' },
-        { id: 4, judul: 'Parasite', tahun: '2019', info: 'Bong Joon-ho • 2j 12m • R', genre: 'Drama', rating: 4.6, match: 85, sinopsis: 'Keluarga miskin menyusup ke kehidupan keluarga kaya dengan bekerja sebagai staf rumah tangga.' },
-        { id: 5, judul: 'Inception', tahun: '2010', info: 'Christopher Nolan • 2j 28m • PG-13', genre: 'Sci-Fi', rating: 4.8, match: 91, sinopsis: 'Seorang pencuri yang ahli masuk ke dalam mimpi orang lain untuk mencuri rahasia.' },
-        { id: 6, judul: 'Oppenheimer', tahun: '2023', info: 'Christopher Nolan • 3j 0m • R', genre: 'Drama', rating: 4.7, match: 87, sinopsis: 'Kisah fisikawan J. Robert Oppenheimer dan perannya dalam pengembangan bom atom.' },
-        { id: 7, judul: 'Dune Part Two', tahun: '2024', info: 'Denis Villeneuve • 2j 46m • PG-13', genre: 'Sci-Fi', rating: 4.5, match: 83, sinopsis: 'Paul Atreides bersatu dengan Chani dan Fremen saat ia menuntut balas dendam.' },
-        { id: 8, judul: 'Past Lives', tahun: '2023', info: 'Celine Song • 1j 45m • PG-13', genre: 'Drama', rating: 4.4, match: 80, sinopsis: 'Dua teman masa kecil yang terpisah kembali dipertemukan setelah puluhan tahun.' },
-        { id: 9, judul: 'Arrival', tahun: '2016', info: 'Denis Villeneuve • 1j 56m • PG-13', genre: 'Sci-Fi', rating: 4.5, match: 96, sinopsis: 'Seorang ahli bahasa mencoba berkomunikasi dengan makhluk luar angkasa.' },
-        { id: 10, judul: 'Ex Machina', tahun: '2014', info: 'Alex Garland • 1j 48m • R', genre: 'Sci-Fi', rating: 4.3, match: 89, sinopsis: 'Seorang programmer muda dipilih untuk berpartisipasi dalam eksperimen AI.' },
-        { id: 11, judul: 'Gone Girl', tahun: '2014', info: 'David Fincher • 2j 29m • R', genre: 'Misteri', rating: 4.4, match: 84, sinopsis: 'Hilangnya seorang istri secara misterius membuat suaminya menjadi tersangka utama.' },
-        { id: 12, judul: 'Poor Things', tahun: '2023', info: 'Yorgos Lanthimos • 2j 21m • R', genre: 'Komedi', rating: 4.2, match: 78, sinopsis: 'Seorang wanita muda yang dibangkitkan kembali oleh ilmuwan mulai menjelajahi dunia.' },
-    ];
+    // Mengambil data film dari API Laravel
+    useEffect(() => {
+        const fetchFilms = async () => {
+            try {
+                const res = await axios.get('/films');
+                
+                // Format data agar sesuai dengan kebutuhan UI
+                const formattedFilms = res.data.map(film => ({
+                    id: film.id,
+                    judul: film.judul,
+                    tahun: film.tahun,
+                    info: 'Sutradara • 2j 15m • PG-13',
+                    genre: film.genre ? film.genre.nama : 'Lainnya',
+                    rating: film.rating_avg,
+                    match: Math.floor(Math.random() * (99 - 75 + 1)) + 75, 
+                    sinopsis: film.sinopsis,
+                    poster: film.poster
+                }));
+
+                setFilms(formattedFilms);
+            } catch (error) {
+                console.error("Gagal mengambil data film:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchFilms();
+    }, []);
 
     const handleOpenModal = (film) => {
         setSelectedFilm(film);
@@ -35,7 +54,8 @@ export default function Jelajahi() {
         setUserRating(0);
     };
 
-    const filtered = dummyFilms.filter(f => {
+    // Logika penyaringan & pengurutan diterapkan pada state 'films'
+    const filtered = films.filter(f => {
         const matchGenre = activeGenre === 'Semua' || f.genre === activeGenre;
         const matchSearch = f.judul.toLowerCase().includes(search.toLowerCase());
         const matchRating = f.rating >= minRating;
@@ -52,12 +72,24 @@ export default function Jelajahi() {
             <div className="border-b border-zinc-800/60 px-6 py-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex gap-3 mb-5">
-                        <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari judul film, genre, aktor..." className="flex-1 bg-[#1a1a1a] border border-zinc-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500 transition" />
-                        <button className="bg-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition shadow-sm shadow-purple-600/20 active:scale-95">Cari</button>
+                        <input 
+                            type="text" 
+                            value={search} 
+                            onChange={(e) => setSearch(e.target.value)} 
+                            placeholder="Cari judul film, genre, aktor..." 
+                            className="flex-1 bg-[#1a1a1a] border border-zinc-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-purple-500 transition" 
+                        />
+                        <button className="bg-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition shadow-sm shadow-purple-600/20 active:scale-95">
+                            Cari
+                        </button>
                     </div>
                     <div className="flex gap-2 flex-wrap">
                         {genres.map((genre) => (
-                            <button key={genre} onClick={() => setActiveGenre(genre)} className={`px-4 py-1.5 rounded-full border text-xs font-medium transition active:scale-95 ${activeGenre === genre ? 'bg-purple-600 border-purple-500 text-white' : 'bg-[#222222] border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white'}`}>
+                            <button 
+                                key={genre} 
+                                onClick={() => setActiveGenre(genre)} 
+                                className={`px-4 py-1.5 rounded-full border text-xs font-medium transition active:scale-95 ${activeGenre === genre ? 'bg-purple-600 border-purple-500 text-white' : 'bg-[#222222] border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white'}`}
+                            >
                                 {genre}
                             </button>
                         ))}
@@ -69,31 +101,61 @@ export default function Jelajahi() {
                 <div className="w-full md:w-56 shrink-0">
                     <div className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-4 sticky top-6">
                         <div className="font-bold text-xs uppercase tracking-wider text-zinc-500 mb-4">Filter Panel</div>
-                        <input type="range" min="0" max="5" step="0.5" value={minRating} onChange={(e) => setMinRating(parseFloat(e.target.value))} className="w-full accent-purple-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer mb-2" />
+                        <input 
+                            type="range" min="0" max="5" step="0.5" 
+                            value={minRating} 
+                            onChange={(e) => setMinRating(parseFloat(e.target.value))} 
+                            className="w-full accent-purple-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer mb-2" 
+                        />
                         <div className="text-xs text-zinc-300 mb-5">Min: {minRating} ★</div>
-                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full bg-[#222222] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white mb-4">
+                        <select 
+                            value={sortBy} 
+                            onChange={(e) => setSortBy(e.target.value)} 
+                            className="w-full bg-[#222222] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white mb-4"
+                        >
                             <option value="rating">Rating tertinggi</option>
                             <option value="match">% Kecocokan</option>
                             <option value="judul">Judul A-Z</option>
                         </select>
-                        <button onClick={() => { setMinRating(0); setActiveGenre('Semua'); }} className="w-full bg-transparent border border-zinc-800 text-zinc-400 text-xs py-2 rounded-lg hover:text-white">Reset filter</button>
+                        <button 
+                            onClick={() => { setMinRating(0); setActiveGenre('Semua'); setSearch(''); setSortBy('rating'); }} 
+                            className="w-full bg-transparent border border-zinc-800 text-zinc-400 text-xs py-2 rounded-lg hover:text-white hover:bg-zinc-800/50 transition"
+                        >
+                            Reset filter
+                        </button>
                     </div>
                 </div>
 
                 <div className="flex-1">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {filtered.map((film) => (
-                            <div key={film.id} onClick={() => handleOpenModal(film)} className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-3 cursor-pointer hover:border-zinc-600">
-                                <div className="aspect-[3/4] bg-[#262626] rounded-lg mb-3 flex items-center justify-center text-zinc-600 text-xs">Poster film</div>
-                                <p className="text-white font-medium text-sm">{film.judul}</p>
-                                <p className="text-zinc-500 text-xs mb-2">{film.genre}</p>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-amber-500">★ {film.rating}</span>
-                                    <span className="bg-purple-950/50 text-white px-2 py-0.5 rounded-full border border-purple-900">{film.match}% Match</span>
+                    {isLoading ? (
+                        <div className="text-center py-20 text-zinc-500 text-sm">
+                            Memuat katalog film...
+                        </div>
+                    ) : filtered.length === 0 ? (
+                        <div className="text-center py-20 text-zinc-500 text-sm border border-dashed border-zinc-800 rounded-xl">
+                            Tidak ada film yang cocok dengan filter pencarian.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {filtered.map((film) => (
+                                <div key={film.id} onClick={() => handleOpenModal(film)} className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-3 cursor-pointer hover:border-zinc-600 transition group">
+                                    <div className="aspect-[3/4] bg-[#262626] rounded-lg mb-3 flex items-center justify-center text-zinc-600 text-xs overflow-hidden">
+                                        {film.poster ? (
+                                            <img src={film.poster} alt={film.judul} className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
+                                        ) : (
+                                            "Poster film"
+                                        )}
+                                    </div>
+                                    <p className="text-white font-medium text-sm truncate">{film.judul}</p>
+                                    <p className="text-zinc-500 text-xs mb-2">{film.genre}</p>
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-amber-500">★ {film.rating}</span>
+                                        <span className="bg-purple-950/50 text-white px-2 py-0.5 rounded-full border border-purple-900">{film.match}% Match</span>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -107,8 +169,14 @@ export default function Jelajahi() {
                         
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start">
                             <div className="flex flex-col gap-3">
-                                <div className="w-full aspect-[3/4] bg-[#262626] border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 text-xs">Poster film</div>
-                                <button onClick={() => alert('Streaming simulation')} className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2.5 rounded-lg shadow-md shadow-purple-600/10">🍿 Tonton Sekarang</button>
+                                <div className="w-full aspect-[3/4] bg-[#262626] border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 text-xs overflow-hidden">
+                                    {selectedFilm.poster ? (
+                                        <img src={selectedFilm.poster} alt={selectedFilm.judul} className="w-full h-full object-cover" />
+                                    ) : (
+                                        "Poster film"
+                                    )}
+                                </div>
+                                <button onClick={() => alert('Streaming simulation')} className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2.5 rounded-lg shadow-md shadow-purple-600/10 active:scale-95 transition">🍿 Tonton Sekarang</button>
                             </div>
                             
                             <div className="sm:col-span-2 flex flex-col gap-4">

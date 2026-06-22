@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import axios from '../api/axios'; // Pastikan path import axios ini sesuai
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -7,20 +8,26 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Mengambil nama user secara dinamis dari LocalStorage (jika belum ada, default "Resz")
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user_data');
-    if (savedUser) {
-      try {
-        return JSON.parse(savedUser);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    return { name: 'Resz' };
-  });
+  // 1. State awal diset titik-titik menunggu data asli dari database
+  const [user, setUser] = useState({ name: '...' });
 
-  // Dengarkan perubahan jika user meng-update profilnya di file Profil.jsx
+  // 2. Mengambil data user dari backend
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get('/user');
+        setUser(response.data);
+        // Simpan cadangan ke localStorage untuk sinkronisasi antar komponen
+        localStorage.setItem('user_data', JSON.stringify(response.data));
+      } catch (error) {
+        console.error("Gagal mengambil data user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // 3. Melihat Perubahan data user di local storage
   useEffect(() => {
     const handleStorageChange = () => {
       const savedUser = localStorage.getItem('user_data');
@@ -41,7 +48,23 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fungsi pembantu untuk menentukan warna link navigasi (Putih jika aktif)
+  // 4. Fungsi logout 
+  const handleLogout = async () => {
+    try {
+      await axios.post('/logout'); // Menghapus token di database Laravel
+    } catch (error) {
+      console.error("Gagal logout:", error);
+    } finally {
+      // Membersihkan semua jejak sesi di frontend
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('user_data');
+      
+      navigate('/login');
+    }
+  };
+
+  // Fungsi pembantu untuk menentukan
   const getLinkClass = (path) => {
     const baseClass = "transition-colors font-medium text-sm tracking-wide";
     return location.pathname === path 
@@ -79,7 +102,7 @@ export default function Navbar() {
 
           {/* Dropdown Menu Kecil saat Kotak Ungu diklik */}
           {isDropdownOpen && (
-            <div className="absolute right-0 top-full mt-3 w-48 bg-[#18181b] border border-zinc-800 rounded-lg shadow-2xl py-1 z-50">
+            <div className="absolute right-0 top-full mt-3 w-48 bg-[#18181b] border border-zinc-800 rounded-lg shadow-2xl py-1 z-50 overflow-hidden">
               <button
                 onClick={() => { navigate('/dashboard'); setIsDropdownOpen(false); }}
                 className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors block border-b border-zinc-800/50"
@@ -88,9 +111,17 @@ export default function Navbar() {
               </button>
               <button
                 onClick={() => { navigate('/profil'); setIsDropdownOpen(false); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors block"
+                className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors block border-b border-zinc-800/50"
               >
                 Profil User
+              </button>
+              
+              {/* TOMBOL LOGOUT BARU */}
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-zinc-800 hover:text-red-300 transition-colors block"
+              >
+                Keluar
               </button>
             </div>
           )}
