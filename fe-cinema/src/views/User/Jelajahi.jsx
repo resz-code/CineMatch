@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from '../../api/axios'; 
 
 export default function Jelajahi() {
+    const location = useLocation();
+    
+    // Menangkap kata kunci pencarian dari Home (jika ada)
+    const initialSearch = location.state?.keyword || '';
+
     const [films, setFilms] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const [activeGenre, setActiveGenre] = useState('Semua');
-    const [search, setSearch] = useState('');
+    const [search, setSearch] = useState(initialSearch); // Set state awal dari lemparan Home
     const [minRating, setMinRating] = useState(0);
     const [sortBy, setSortBy] = useState('rating');
     
@@ -41,7 +47,8 @@ export default function Jelajahi() {
             } catch (error) {
                 console.error("Gagal mengambil data film:", error);
             } finally {
-                setIsLoading(false);
+                // Beri sedikit delay agar animasi loading natural
+                setTimeout(() => setIsLoading(false), 800);
             }
         };
 
@@ -67,8 +74,18 @@ export default function Jelajahi() {
         return 0;
     });
 
+    // Jika sedang loading, tampilkan layar memuat
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#141414] flex flex-col items-center justify-center font-sans">
+                <div className="w-12 h-12 border-4 border-zinc-800 border-t-purple-500 rounded-full animate-spin mb-4"></div>
+                <p className="text-zinc-500 text-sm animate-pulse tracking-wide">Memuat katalog film...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-[#141414] font-sans">
+        <div className="min-h-screen bg-[#141414] font-sans relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-width:none">
             <div className="border-b border-zinc-800/60 px-6 py-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex gap-3 mb-5">
@@ -127,11 +144,7 @@ export default function Jelajahi() {
                 </div>
 
                 <div className="flex-1">
-                    {isLoading ? (
-                        <div className="text-center py-20 text-zinc-500 text-sm">
-                            Memuat katalog film...
-                        </div>
-                    ) : filtered.length === 0 ? (
+                    {filtered.length === 0 ? (
                         <div className="text-center py-20 text-zinc-500 text-sm border border-dashed border-zinc-800 rounded-xl">
                             Tidak ada film yang cocok dengan filter pencarian.
                         </div>
@@ -139,9 +152,9 @@ export default function Jelajahi() {
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                             {filtered.map((film) => (
                                 <div key={film.id} onClick={() => handleOpenModal(film)} className="bg-[#1a1a1a] border border-zinc-800 rounded-xl p-3 cursor-pointer hover:border-zinc-600 transition group">
-                                    <div className="aspect-[3/4] bg-[#262626] rounded-lg mb-3 flex items-center justify-center text-zinc-600 text-xs overflow-hidden">
+                                    <div className="aspect-3/4 bg-[#262626] rounded-lg mb-3 flex items-center justify-center text-zinc-600 text-xs overflow-hidden">
                                         {film.poster ? (
-                                            <img src={film.poster} alt={film.judul} className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
+                                            <img src={film.poster} alt={film.judul} className="w-full h-full object-cover object-top transition duration-300 group-hover:scale-105" />
                                         ) : (
                                             "Poster film"
                                         )}
@@ -161,22 +174,22 @@ export default function Jelajahi() {
 
             {/* MODAL POP-UP  */}
             {isModalOpen && selectedFilm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-                    <div className="bg-[#1a1a1a] w-full max-w-2xl rounded-2xl border border-zinc-800 p-6 shadow-2xl relative">
-                        <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-white bg-zinc-800/60 px-3 py-1.5 rounded-lg text-xs font-medium border border-zinc-700/50">← Kembali</button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-width:none">
+                    <div className="bg-[#1a1a1a] w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-800 p-6 shadow-2xl relative transition-all duration-300 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-width:none">
+                        <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-white bg-zinc-800/60 hover:bg-zinc-800 px-3 py-1.5 rounded-lg flex items-center gap-1 transition text-xs font-medium border border-zinc-700/50">← Kembali</button>
                         
-                        <div className="text-[10px] font-bold text-purple-500 uppercase tracking-wider mb-4 border-b border-zinc-800/80 pb-2">Detail Informasi Film</div>
+                        <div className="text-[10px] font-bold text-purple-500 uppercase tracking-wider mb-4 border-b border-zinc-800/80 pb-2 pr-20">Detail Informasi Film</div>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start">
                             <div className="flex flex-col gap-3">
-                                <div className="w-full aspect-[3/4] bg-[#262626] border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-500 text-xs overflow-hidden">
+                                <div className="w-full h-auto bg-[#1a1a1a] border border-zinc-800 rounded-xl flex items-center justify-center shadow-inner overflow-hidden">
                                     {selectedFilm.poster ? (
-                                        <img src={selectedFilm.poster} alt={selectedFilm.judul} className="w-full h-full object-cover" />
+                                        <img src={selectedFilm.poster} alt={selectedFilm.judul} className="w-full h-auto block object-contain" />
                                     ) : (
-                                        "Poster film"
+                                        <span className="py-20 text-zinc-600 text-xs font-medium">Poster film</span>
                                     )}
                                 </div>
-                                <button onClick={() => alert('Streaming simulation')} className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2.5 rounded-lg shadow-md shadow-purple-600/10 active:scale-95 transition">🍿 Tonton Sekarang</button>
+                                <button onClick={() => window.open('https://www.tix.id/', '_blank')} className="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-2.5 rounded-lg shadow-md shadow-purple-600/10 active:scale-95 transition">🍿 Tonton Sekarang</button>
                             </div>
                             
                             <div className="sm:col-span-2 flex flex-col gap-4">
@@ -196,7 +209,7 @@ export default function Jelajahi() {
                                     <p className="text-[10px] text-zinc-500 mb-2">Beri bintang untuk melatih akurasi AI sistem rekomendasi</p>
                                     <div className="flex gap-1">
                                         {[1, 2, 3, 4, 5].map((star) => (
-                                            <button key={star} onClick={() => setUserRating(star)} onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)} className="text-2xl">
+                                            <button key={star} onClick={() => setUserRating(star)} onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)} className="text-2xl transition-transform duration-100 hover:scale-125 focus:outline-none">
                                                 <span className={(star <= (hoverRating || userRating)) ? 'text-yellow-400' : 'text-zinc-700'}>★</span>
                                             </button>
                                         ))}

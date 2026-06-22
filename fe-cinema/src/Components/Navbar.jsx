@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import axios from '../api/axios'; // Pastikan path import axios ini sesuai
+import axios from '../api/axios';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -8,26 +8,29 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // 1. State awal diset titik-titik menunggu data asli dari database
-  const [user, setUser] = useState({ name: '...' });
+  const [user, setUser] = useState({ name: '' });
+  // 1. Tambahkan state loading digunakan untuk menampilkan loading saat data user sedang dimuat
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 2. Mengambil data user dari backend
+  // Mengambil data Dari database (Laravel) saat navbar dimuat
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get('/user');
         setUser(response.data);
-        // Simpan cadangan ke localStorage untuk sinkronisasi antar komponen
         localStorage.setItem('user_data', JSON.stringify(response.data));
       } catch (error) {
         console.error("Gagal mengambil data user:", error);
+      } finally {
+        // 2. Matikan loading setelah proses selesai (baik berhasil atau gagal)
+        setIsLoading(false);
       }
     };
 
     fetchUser();
   }, []);
 
-  // 3. Melihat Perubahan data user di local storage
+  // Melihat perubahan jika user mengubah nama di halaman profil
   useEffect(() => {
     const handleStorageChange = () => {
       const savedUser = localStorage.getItem('user_data');
@@ -48,23 +51,21 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 4. Fungsi logout 
+  // Fungsi logout 
   const handleLogout = async () => {
     try {
-      await axios.post('/logout'); // Menghapus token di database Laravel
+      await axios.post('/logout'); 
     } catch (error) {
       console.error("Gagal logout:", error);
     } finally {
-      // Membersihkan semua jejak sesi di frontend
       localStorage.removeItem('token');
       localStorage.removeItem('role');
       localStorage.removeItem('user_data');
-      
       navigate('/login');
     }
   };
 
-  // Fungsi pembantu untuk menentukan
+  // Fungsi pembantu untuk menentukan warna link navigasi
   const getLinkClass = (path) => {
     const baseClass = "transition-colors font-medium text-sm tracking-wide";
     return location.pathname === path 
@@ -91,17 +92,25 @@ export default function Navbar() {
           <Link to="/riwayat" className={getLinkClass('/riwayat')}>Riwayat</Link>
         </div>
 
-        {/* Gabungan Profil: Menjadi Satu Tombol Kotak Ungu */}
         <div className="relative flex items-center" ref={dropdownRef}>
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all focus:outline-none shadow-md shadow-purple-600/20 active:scale-95"
+            className="bg-purple-600 hover:bg-purple-700 text-white min-w-80px h-9 px-4 rounded-lg text-sm font-semibold tracking-wide transition-all focus:outline-none shadow-md shadow-purple-600/20 active:scale-95 flex items-center justify-center gap-2"
+            disabled={isLoading} // Nonaktifkan klik saat sedang memuat
           >
-            {user.name}
+            {/* 3. Tampilan loading, jika selesai tampilkan nama */}
+            {isLoading ? (
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            ) : (
+                user.name
+            )}
           </button>
 
           {/* Dropdown Menu Kecil saat Kotak Ungu diklik */}
-          {isDropdownOpen && (
+          {isDropdownOpen && !isLoading && (
             <div className="absolute right-0 top-full mt-3 w-48 bg-[#18181b] border border-zinc-800 rounded-lg shadow-2xl py-1 z-50 overflow-hidden">
               <button
                 onClick={() => { navigate('/dashboard'); setIsDropdownOpen(false); }}
@@ -116,7 +125,6 @@ export default function Navbar() {
                 Profil User
               </button>
               
-              {/* TOMBOL LOGOUT BARU */}
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-zinc-800 hover:text-red-300 transition-colors block"

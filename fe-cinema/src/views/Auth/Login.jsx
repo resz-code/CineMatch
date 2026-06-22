@@ -19,7 +19,7 @@ export default function Login() {
     const submit = async (e) => {
         e.preventDefault();
         setProcessing(true);
-        setErrors({}); // Reset error setiap kali submit baru
+        setErrors({}); 
         setStatus(null);
         
         try {
@@ -33,7 +33,7 @@ export default function Login() {
             localStorage.setItem('token', response.data.access_token);
             localStorage.setItem('role', response.data.user.role);
             
-            setStatus("Login berhasil! Mengalihkan...");
+            setStatus("Login berhasil");
 
             // 2. Redirect berdasarkan Role
             setTimeout(() => {
@@ -49,7 +49,7 @@ export default function Login() {
             if (error.response && error.response.status === 422) {
                 setErrors(error.response.data.errors);
             } else {
-                setErrors({ email: ["Koneksi ke server gagal atau terjadi kesalahan."] });
+                setErrors({ email: ["Email atau Password Salah!"] });
             }
         } finally {
             setProcessing(false);
@@ -147,12 +147,20 @@ export default function Login() {
                             </Link>
                         </div>
 
+                        {/* TOMBOL SUBMIT DENGAN ANIMASI LOADING SVG */}
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full bg-purple-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-purple-700 transition disabled:opacity-50"
+                            className="w-full flex items-center justify-center bg-purple-600 text-white h-10 rounded-lg text-sm font-medium hover:bg-purple-700 transition disabled:opacity-70"
                         >
-                            {processing ? 'Memproses...' : 'Masuk'}
+                            {processing ? (
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            ) : (
+                                'Masuk'
+                            )}
                         </button>
                     </form>
 

@@ -13,6 +13,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/films', [FilmController::class, 'index']);
+    Route::get('/films/{id}', [FilmController::class, 'show']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
     Route::put('/user/genres', [ProfileController::class, 'updateGenres']);
     Route::put('/user/password', [ProfileController::class, 'updatePassword']);

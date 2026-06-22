@@ -29,4 +29,20 @@ class FilmController extends Controller
 
         return response()->json($films);
     }
+
+    public function show($id)
+    {
+        // Cari film berdasarkan ID, sekalian bawa data genrenya
+        $film = \App\Models\Film::with('genre')->find($id);
+
+        // Jika film tidak ditemukan di database
+        if (!$film) {
+            return response()->json([
+                'message' => 'Film tidak ditemukan'
+            ], 404);
+        }
+
+        // Jika ditemukan, kembalikan data filmnya
+        return response()->json($film, 200);
+    }
 }
