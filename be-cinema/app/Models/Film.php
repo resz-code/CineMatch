@@ -19,35 +19,40 @@ class Film extends Model
         'sinopsis',
         'poster',
         'rating_avg',
+        'rating_default',
+        'is_active',
     ];
 
-    /**
-     * BelongsTo: Film terikat pada satu genre
-     */
-    public function genre()
+    public function getPosterAttribute($value)
     {
-        return $this->belongsTo(Genre::class, 'genre_id', 'id');
+        if ($value) {
+            return asset('storage/' . $value);
+        }
+        return null; 
     }
 
-    /**
-     * One-to-Many: Film memiliki banyak catatan rating dari user
-     */
+    public function interactingUsers()
+    {
+        return $this->belongsToMany(User::class, 'film_user')
+                    ->withPivot('is_watched', 'rating')
+                    ->withTimestamps();
+    }
+
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class, 'film_genre');
+    }
+
     public function ratings()
     {
         return $this->hasMany(Rating::class, 'film_id', 'id');
     }
 
-    /**
-     * One-to-Many: Film muncul di banyak histori tontonan
-     */
     public function watchHistories()
     {
         return $this->hasMany(History::class, 'film_id', 'id');
     }
 
-    /**
-     * One-to-Many: Film bisa direkomendasikan ke banyak user
-     */
     public function recommendations()
     {
         return $this->hasMany(Recommendation::class, 'film_id', 'id');

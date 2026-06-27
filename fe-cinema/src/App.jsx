@@ -1,5 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+// Import Layout Baru
+import MainLayout from './layouts/MainLayout';
+import AdminLayout from './Layouts/adminlayout';
+
 // Import halaman Auth
 import Login from './views/Auth/Login';
 import Register from './views/Auth/Register';
@@ -7,7 +11,6 @@ import ForgotPassword from './views/Auth/ForgotPassword';
 import ResetPassword from './views/Auth/ResetPassword';
 import VerifyEmail from './views/Auth/VerifyEmail';
 import ConfirmPassword from './views/Auth/ConfirmPassword';
-
 
 // Import halaman User
 import Dashboard from './views/User/Dashboard';
@@ -37,20 +40,23 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/confirm-password" element={<ConfirmPassword />} />
 
+        {/* Rute User*/}
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/jelajahi" element={<Jelajahi />} />
+          <Route path="/profil" element={<Profil />} />
+          <Route path="/riwayat" element={<Riwayat />} />
+        </Route>
 
-        {/* Rute User */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/jelajahi" element={<Jelajahi />} />
-        <Route path="/profil" element={<Profil />} />
-        <Route path="/riwayat" element={<Riwayat />} />
-
-        {/* Rute Admin */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/film" element={<AdminFilm />} />
-        <Route path="/admin/laporan" element={<AdminLaporan />} />
-        <Route path="/admin/model" element={<AdminModel />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
+        {/* Rute Admin*/}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/film" element={<AdminFilm />} />
+          <Route path="/admin/laporan" element={<AdminLaporan />} />
+          <Route path="/admin/model" element={<AdminModel />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+        </Route>
 
         {/* Rute 404 */}
         <Route path="*" element={
