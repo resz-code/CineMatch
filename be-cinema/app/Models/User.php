@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role', 
+        'is_active',
     ];
 
     protected $hidden = [
@@ -28,9 +29,17 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // Relasi Many-to-Many ke tabel genres melalui pivot user_genres
     public function genres()
     {
-        return $this->belongsToMany(Genre::class, 'user_genres', 'user_id', 'genre_id');
+        return $this->belongsToMany(Genre::class, 'user_genres', 'user_id', 'genre_id')
+                    ->using(UserGenre::class)
+                    ->withTimestamps(); 
+    }
+
+    public function interactedFilms()
+    {
+        return $this->belongsToMany(Film::class, 'film_user')
+                    ->withPivot('is_watched', 'rating')
+                    ->withTimestamps();
     }
 }

@@ -18,27 +18,30 @@ class AdminController extends Controller
     {
         $request->validate([
             'judul' => 'required|string|max:255',
-            'genre_id' => 'required|exists:genres,id',
+            'genre_ids' => 'required|array',
+            'genre_ids.*' => 'exists:genres,id',
             'tahun' => 'required|integer',
             'sinopsis' => 'required|string',
             'poster' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'rating_default' => 'nullable|numeric|min:0|max:5',
         ]);
 
         $posterPath = null;
         if ($request->hasFile('poster')) {
-            // Menyimpan ke storage/app/public/posters
             $posterPath = $request->file('poster')->store('posters', 'public');
         }
 
         $film = Film::create([
             'judul' => $request->judul,
-            'genre_id' => $request->genre_id,
             'tahun' => $request->tahun,
             'sinopsis' => $request->sinopsis,
             'poster' => $posterPath,
-            'rating_avg' => 0,
+            'rating_avg' => 0, 
+            'rating_default' => $request->rating_default,
             'is_active' => true,
         ]);
+
+        $film->genres()->attach($request->genre_ids);
 
         return response()->json(['message' => 'Film berhasil ditambahkan', 'data' => $film], 201);
     }
@@ -50,14 +53,13 @@ class AdminController extends Controller
 
         $request->validate([
             'judul' => 'required|string|max:255',
-            'genre_id' => 'required|exists:genres,id',
             'tahun' => 'required|integer',
             'sinopsis' => 'required|string',
             'poster' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'rating_default' => 'nullable|numeric|min:0|max:5', 
         ]);
 
         if ($request->hasFile('poster')) {
-            // Hapus poster lama jika ada
             if ($film->getRawOriginal('poster')) {
                 Storage::disk('public')->delete($film->getRawOriginal('poster'));
             }
@@ -66,11 +68,14 @@ class AdminController extends Controller
 
         $film->update([
             'judul' => $request->judul,
-            'genre_id' => $request->genre_id,
             'tahun' => $request->tahun,
             'sinopsis' => $request->sinopsis,
-            // poster hanya terupdate jika ada file baru yang diunggah
+            'rating_default' => $request->rating_default,
         ]);
+
+        if ($request->has('genre_ids')) {
+            $film->genres()->sync($request->genre_ids);
+        }
 
         return response()->json(['message' => 'Film berhasil diperbarui', 'data' => $film]);
     }
@@ -120,4 +125,20 @@ class AdminController extends Controller
         $status = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
         return response()->json(['message' => "User berhasil $status", 'is_active' => $user->is_active]);
     }
+
+    public function getUsers()
+{
+    $users = User::where('role', 'user')
+        ->with('genres')
+        ->withCount(['interactedFilms as interacted_films_count' => function ($query) {
+            $query->where('film_user.is_watched', true);
+        }])
+        ->withCount(['interactedFilms as ratings_count' => function ($query) {
+            $query->whereNotNull('film_user.rating');
+        }])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json($users, 200);
+}
 }
