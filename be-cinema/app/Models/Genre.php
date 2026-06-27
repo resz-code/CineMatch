@@ -8,4 +8,9 @@ class Genre extends Model
 {
     protected $table = 'genres';
     protected $fillable = ['nama'];
+
+    public function films()
+    {
+        return $this->belongsToMany(Film::class, 'film_genre');
+    }
 }

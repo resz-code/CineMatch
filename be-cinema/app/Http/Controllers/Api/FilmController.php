@@ -10,7 +10,7 @@ class FilmController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Film::with('genre');
+        $query = Film::with('genres')->where('is_active', true);
 
         // Fitur Pencarian Judul
         if ($request->has('search') && $request->search != '') {
@@ -19,12 +19,12 @@ class FilmController extends Controller
 
         // Fitur Filter Genre
         if ($request->has('genre') && $request->genre !== 'Semua') {
-            $query->whereHas('genre', function ($q) use ($request) {
+            $query->whereHas('genres', function ($q) use ($request) {
                 $q->where('nama', $request->genre);
             });
         }
 
-        // Mengambil semua data (bisa diubah menggunakan ->paginate(10) nanti jika film sudah banyak)
+        // Mengambil semua data 
         $films = $query->orderBy('rating_avg', 'desc')->get();
 
         return response()->json($films);
@@ -32,13 +32,11 @@ class FilmController extends Controller
 
     public function show($id)
     {
-        // Cari film berdasarkan ID, sekalian bawa data genrenya
-        $film = \App\Models\Film::with('genre')->find($id);
-
+        $film = \App\Models\Film::with('genres')->where('is_active', true)->find($id);
         // Jika film tidak ditemukan di database
         if (!$film) {
             return response()->json([
-                'message' => 'Film tidak ditemukan'
+                'message' => 'Film tidak ditemukan atau sedang dinonaktifkan'
             ], 404);
         }
 
