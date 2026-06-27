@@ -57,7 +57,7 @@ export default function Register() {
             if (error.response && error.response.status === 422) {
                 setErrors(error.response.data.errors);
             } else {
-                setErrors({ email: ["Terjadi kesalahan saat mendaftar. Coba lagi nanti."] });
+                setErrors({email: ["Terjadi kesalahan saat mendaftar. Coba lagi nanti."]});
             }
         } finally {
             setProcessing(false);
