@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Import Layout Baru
 import MainLayout from './layouts/MainLayout';
-import AdminLayout from './layouts/AdminLayout'; 
+import AdminLayout from './Layouts/adminlayout';
 
 // Import halaman Auth
 import Login from './views/Auth/Login';
@@ -40,7 +40,7 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/confirm-password" element={<ConfirmPassword />} />
 
-        {/* Rute User (Menggunakan MainLayout) */}
+        {/* Rute User*/}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/home" element={<Home />} />
@@ -49,8 +49,7 @@ function App() {
           <Route path="/riwayat" element={<Riwayat />} />
         </Route>
 
-        {/* Rute Admin (Sekarang Dibungkus Menggunakan AdminLayout) */}
-        {/* Menggunakan format bersarang agar Sidebar di kiri otomatis ada di semua halaman ini */}
+        {/* Rute Admin*/}
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/film" element={<AdminFilm />} />
