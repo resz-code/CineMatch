@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Import Layout Baru
 import MainLayout from './layouts/MainLayout';
-import AdminLayout from './layouts/AdminLayout';
+import AdminLayout from './Layouts/adminlayout';
 
 // Import halaman Auth
 import Login from './views/Auth/Login';
