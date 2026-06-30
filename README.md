@@ -108,10 +108,23 @@ php artisan key:generate
 
 ### 4. Eksekusi migrasi tabel 
 ```
-php artisan migrate --seed
+php artisan migrate:fresh
 ```
 
-### 5. Jalankan server 
+### 5. Seeder Genre & Film
+```
+php artisan db:seed --class=GenreSeeder
+```
+```
+php artisan db:seed --class=FilmSeeder
+```
+
+### 6. Storage Link
+```
+php artisan storage:link
+```
+
+### 7. Jalankan server 
 ```
 php artisan serve
 ```
